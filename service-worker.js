@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stars-cache-v4';
+const CACHE_NAME = 'stars-trial-cache-v1';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -7,44 +7,39 @@ const URLS_TO_CACHE = [
   './icons/icon-512x512.png'
 ];
 
-// Install & cache core files
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
   );
   self.skipWaiting();
 });
 
-// Activate & clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(names.filter((n)=>n!==CACHE_NAME).map((n)=>caches.delete(n)))
+    caches.keys().then(names =>
+      Promise.all(names.map(n => (n !== CACHE_NAME ? caches.delete(n) : null)))
     )
   );
   self.clients.claim();
 });
 
-// SPA-style navigate fallback + cache-first for assets
+// SPA-friendly: always serve index.html for navigations (prevents 404 on GH Pages)
 self.addEventListener('fetch', (event) => {
-  // Always serve index.html for navigation (fixes GitHub Pages 404 from PWA icon)
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match('./index.html').then((cached) => cached || fetch('./index.html'))
+      caches.match('./index.html').then(resp => resp || fetch('./index.html'))
     );
     return;
   }
 
-  // Cache-first for other requests
+  // Cache-first for static files; network for others
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((resp) => {
-        // Cache fetched assets (ignore opaque errors)
-        try {
-          const copy = resp.clone();
-          caches.open(CACHE_NAME).then((cache)=>cache.put(event.request, copy));
-        } catch {}
-        return resp;
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request).then(netRes => {
+        // Optionally cache fetched static assets
+        const clone = netRes.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return netRes;
       }).catch(() => cached);
     })
   );
