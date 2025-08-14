@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Stars</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#FFD700" />
+  <style>
+    :root{
+      --bg:#fff8e1; --card:#fff; --thead:#ffeb3b; --border:#ffcc80; --hover:#ffe082; --text:#333;
+      --accent:#ff5722;
+      /* Naughty theme */
+      --n-bg:#0b0b0b; --n-card:#111; --n-thead:#4a0000; --n-border:#8b0000; --n-hover:#240000; --n-text:#eee;
+      --n-accent:#ff0033;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: Comic Sans MS, system-ui, -apple-system, Segoe UI, sans-serif;
+      background:var(--bg); color:var(--text); display:flex; flex-direction:column; align-items:center;
+      padding:12px 10px 28px;
+      transition: background .25s ease, color .25s ease;
+    }
+    body.naughty{ background:var(--n-bg); color:var(--n-text); }
+
+    .topbar{
+      width:100%; max-width:720px; display:flex; align-items:center; gap:12px;
+    }
+    .switch-wrap{ display:flex; align-items:center; gap:10px; }
+    .mode-label{ font-weight:700; font-size:14px; opacity:.85; white-space:nowrap; }
+    h1{ margin:8px auto 12px; color:var(--accent); font-size:1.6rem; text-align:center; }
+    body.naughty h1{ color:var(--n-accent); }
+
+    /* iOS-safe fixed position for the switch (top-left) */
+    .fixed-switch{
+      position:sticky; top:6px; left:6px; align-self:flex-start;
+      z-index:5; padding:6px 8px; border-radius:999px;
+      background:rgba(255,255,255,.7); backdrop-filter:blur(6px);
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
+    body.naughty .fixed-switch{ background:rgba(0,0,0,.35); }
+
+    /* Toggle switch */
+    .switch {
+      position:relative; display:inline-block; width:64px; height:34px;
+    }
+    .switch input { display:none; }
+    .slider {
+      position:absolute; cursor:pointer; inset:0; background:#e2e8f0; border-radius:999px;
+      transition:.25s;
+    }
+    .slider:before{
+      content:""; position:absolute; height:26px; width:26px; left:4px; top:4px;
+      background:#fff; border-radius:50%; transition:.25s; box-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
+    input:checked + .slider { background:#b00020; }
+    input:checked + .slider:before { transform:translateX(30px); }
+
+    .mode-emoji{
+      font-size:18px; font-weight:700; min-width:22px; text-align:center;
+    }
+
+    table{
+      border-collapse:collapse; margin:auto; width:100%; max-width:720px;
+      background:var(--card); border-radius:12px; overflow:hidden;
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+    }
+    th,td{
+      border:2px solid var(--border); padding:10px 10px; font-size:16px;
+    }
+    th{ background:var(--thead); color:#222; text-align:center; }
+    tr:nth-child(even){ background:#fffde7; }
+    tr:hover{ background:var(--hover); }
+    body.naughty table{ background:var(--n-card); }
+    body.naughty th{ background:var(--n-thead); color:#fff; }
+    body.naughty td, body.naughty th{ border-color:var(--n-border); }
+    body.naughty tr:nth-child(even){ background:#0f0f0f; }
+    body.naughty tr:hover{ background:var(--n-hover); }
+
+    /* Column widths & alignments */
+    th:nth-child(1), td:nth-child(1){ width:44px; text-align:center; }
+    th:nth-child(2), td:nth-child(2){ width:28%; text-align:left; }
+    th:nth-child(3), td:nth-child(3){ width:54%; text-align:left; word-break:break-word; font-size:19px; }
+    th:nth-child(4), td:nth-child(4){ width:56px; text-align:center; }
+
+    /* Small screens tweaks */
+    @media (max-width:420px){
+      th,td{ padding:9px 8px; font-size:15px; }
+      th:nth-child(2), td:nth-child(2){ width:34%; }
+      th:nth-child(3), td:nth-child(3){ width:48%; font-size:18px; }
+      h1{ font-size:1.35rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top-left sliding switch -->
+  <div class="fixed-switch topbar">
+    <div class="switch-wrap">
+      <span class="mode-emoji" id="modeIconLeft">🌟</span>
+      <label class="switch" aria-label="Toggle Naughty Mode">
+        <input type="checkbox" id="modeToggle" />
+        <span class="slider"></span>
+      </label>
+      <span class="mode-emoji" id="modeIconRight">❌</span>
+      <span class="mode-label" id="modeLabel">Stars</span>
+    </div>
+  </div>
+
+  <h1 id="pageTitle">🌟 Student Star Points 🌟</h1>
+
+  <table id="studentTable" aria-label="Student Points Table">
+    <thead>
+      <tr>
+        <th>No.</th>
+        <th>Name</th>
+        <th id="pointsHeader">Stars</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+  // ======= CONFIG =======
+  const sheetID = "1f4qn9xI0iSxyQz_JRuP3RrCuPnXO3BV12KopVKI3qks";
+  const sheetName = "Sheet1"; // change if needed
+
+  // We pull A (Name), B (Stars), F (Naughty)
+  const query = encodeURIComponent("SELECT A,B,F");
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
+
+  // Count helpers
+  const countStars = (s="") => (s.match(/🌟/g) || []).length;
+  // Count common "bad" marks: ❌, 🚫, ✖️, × (and both forms of ✖ with/without variation selector)
+  const countNaughty = (s="") => (s.match(/[❌🚫✖️✖×]/g) || []).length;
+
+  const tbody = document.querySelector("#studentTable tbody");
+  const pageTitle = document.getElementById("pageTitle");
+  const pointsHeader = document.getElementById("pointsHeader");
+  const toggle = document.getElementById("modeToggle");
+  const modeLabel = document.getElementById("modeLabel");
+
+  let allStudents = []; // {name, starsStr, starsTotal, naughtyStr, naughtyTotal}
+
+  function render(mode){
+    // mode: 'stars' | 'naughty'
+    document.body.classList.toggle('naughty', mode === 'naughty');
+    modeLabel.textContent = mode === 'naughty' ? 'Naughty' : 'Stars';
+    pointsHeader.textContent = mode === 'naughty' ? 'Naughty' : 'Stars';
+    pageTitle.textContent = mode === 'naughty' ? "❌ Naughty List ❌" : "🌟 Student Star Points 🌟";
+
+    // sort
+    const sorted = [...allStudents].sort((a,b)=>{
+      const ta = mode==='naughty' ? a.naughtyTotal : a.starsTotal;
+      const tb = mode==='naughty' ? b.naughtyTotal : b.starsTotal;
+      return tb - ta; // desc
+    });
+
+    tbody.innerHTML = "";
+    sorted.forEach((st, i)=>{
+      const total = mode==='naughty' ? st.naughtyTotal : st.starsTotal;
+      const str   = mode==='naughty' ? st.naughtyStr   : st.starsStr;
+
+      // medals
+      let rankDisplay = i+1;
+      if(mode==='stars'){
+        if(i===0) rankDisplay="🥇";
+        else if(i===1) rankDisplay="🥈";
+        else if(i===2) rankDisplay="🥉";
+      }else{
+        if(i===0) rankDisplay="☠️";
+        else if(i===1) rankDisplay="💀";
+        else if(i===2) rankDisplay="🦴";
+      }
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${rankDisplay}</td>
+        <td>${st.name}</td>
+        <td class="stars">${str || ""}</td>
+        <td>${total}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function saveLocal(rows){
+    localStorage.setItem("stars_naughty_rows", JSON.stringify(rows));
+  }
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem("stars_naughty_rows");
+      return raw ? JSON.parse(raw) : null;
+    }catch{ return null; }
+  }
+
+  function parseRows(rows){
+    allStudents = [];
+    rows.forEach(r=>{
+      const name = r.c[0]?.v || "";
+      const starsStr = r.c[1]?.v || "";
+      const naughtyStr = r.c[2]?.v || ""; // Column F
+      if(name.trim()==="") return;
+
+      const starsTotal = countStars(starsStr);
+      const naughtyTotal = countNaughty(naughtyStr);
+
+      allStudents.push({name, starsStr, starsTotal, naughtyStr, naughtyTotal});
+    });
+  }
+
+  function fetchData(){
+    fetch(url)
+      .then(res => res.text())
+      .then(txt => {
+        const json = JSON.parse(txt.substr(47).slice(0,-2));
+        const rows = json.table.rows || [];
+        parseRows(rows);
+        saveLocal(rows);
+        render(toggle.checked ? 'naughty' : 'stars');
+      })
+      .catch(()=>{
+        const cached = loadLocal();
+        if(cached){
+          parseRows(cached);
+          render(toggle.checked ? 'naughty' : 'stars');
+        }else{
+          tbody.innerHTML = `<tr><td colspan="4">Offline & no saved data yet.</td></tr>`;
+        }
+      });
+  }
+
+  // Toggle
+  toggle.addEventListener('change', ()=>{
+    render(toggle.checked ? 'naughty' : 'stars');
+  });
+
+  fetchData();
+
+  // Register SW for PWA/offline
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('./service-worker.js')
+        .catch(err=>console.log('SW registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>
