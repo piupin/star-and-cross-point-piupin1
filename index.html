@@ -3,19 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stars / Naughty Points</title>
+<title>Student Stars & Naughty List</title>
 <style>
     body {
         font-family: Arial, sans-serif;
+        background-color: #fff8e1;
         margin: 0;
         padding: 0;
-        background: #fff8e1;
-        color: #333;
-        transition: background 0.3s, color 0.3s;
     }
-    .naughty-mode {
-        background: #1a0000;
-        color: #ff4d4d;
+    header {
+        background: #FFD700;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+    }
+    label {
+        font-weight: bold;
+        margin-left: 10px;
     }
     table {
         width: 100%;
@@ -23,97 +27,110 @@
         margin-top: 10px;
     }
     th, td {
+        border: 1px solid #ccc;
         padding: 8px;
-        border-bottom: 1px solid #ccc;
-        text-align: left;
     }
     th {
-        background: #ffeb3b;
+        background: #fdd835;
+    }
+    .naughty-mode {
+        background-color: #1c1c1c;
+        color: white;
     }
     .naughty-mode th {
-        background: #660000;
-        color: #fff;
-    }
-    .switch-container {
-        padding: 10px;
+        background: #ff1744;
     }
 </style>
 </head>
 <body>
-
-<div class="switch-container">
-    <label>
-        <input type="checkbox" id="modeSwitch"> Naughty Mode ☠️
-    </label>
-</div>
-
-<table>
-    <thead>
-        <tr>
-            <th>No.</th>
-            <th>Name</th>
-            <th id="pointsHeader">Stars</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody id="dataBody"></tbody>
-</table>
+    <header>
+        <input type="checkbox" id="modeSwitch">
+        <label for="modeSwitch">Show Naughty List</label>
+    </header>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th id="pointsHeader">Stars</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
 <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk/gviz/tq?tqx=out:json";
-const modeSwitch = document.getElementById("modeSwitch");
-const dataBody = document.getElementById("dataBody");
-const pointsHeader = document.getElementById("pointsHeader");
+const sheetId = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
+const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
-let studentsData = [];
+const tableBody = document.querySelector("#dataTable tbody");
+const pointsHeader = document.getElementById("pointsHeader");
+const modeSwitch = document.getElementById("modeSwitch");
+
+let data = [];
 
 function fetchData() {
     fetch(sheetURL)
         .then(res => res.text())
-        .then(text => {
-            const json = JSON.parse(text.substr(47).slice(0, -2));
-            studentsData = json.table.rows.map((row, i) => ({
+        .then(raw => {
+            const json = JSON.parse(raw.substr(47).slice(0, -2));
+            const rows = json.table.rows;
+
+            data = rows.map((row, index) => ({
+                no: index + 1,
                 name: row.c[1] ? row.c[1].v : "",
-                stars: row.c[2] ? parseInt(row.c[2].v) : 0,
-                naughty: row.c[5] ? parseInt(row.c[5].v) : 0
+                stars: row.c[2] ? row.c[2].v : 0,
+                naughty: row.c[5] ? row.c[5].v : 0
             }));
-            renderTable();
-        });
+
+            renderTable(false);
+        })
+        .catch(err => console.error("Error loading data:", err));
 }
 
-function renderTable() {
-    const isNaughty = modeSwitch.checked;
-    pointsHeader.textContent = isNaughty ? "Naughty Points" : "Stars";
+function renderTable(naughtyMode) {
+    tableBody.innerHTML = "";
 
-    let sortedData = [...studentsData];
-    sortedData.sort((a, b) => {
-        return isNaughty ? b.naughty - a.naughty : b.stars - a.stars;
-    });
+    let sortedData;
+    if (naughtyMode) {
+        sortedData = [...data].sort((a, b) => b.naughty - a.naughty);
+        pointsHeader.textContent = "Naughty Points";
+        document.body.classList.add("naughty-mode");
+    } else {
+        sortedData = [...data].sort((a, b) => b.stars - a.stars);
+        pointsHeader.textContent = "Stars";
+        document.body.classList.remove("naughty-mode");
+    }
 
-    dataBody.innerHTML = "";
     sortedData.forEach((student, index) => {
         let medal = "";
-        if (index === 0) medal = isNaughty ? "☠️" : "🥇";
-        else if (index === 1) medal = isNaughty ? "💀" : "🥈";
-        else if (index === 2) medal = isNaughty ? "🦴" : "🥉";
+        if (!naughtyMode) {
+            if (index === 0) medal = "🥇";
+            else if (index === 1) medal = "🥈";
+            else if (index === 2) medal = "🥉";
+        } else {
+            if (index === 0) medal = "☠️";
+            else if (index === 1) medal = "💀";
+            else if (index === 2) medal = "🦴";
+        }
 
-        let points = isNaughty ? student.naughty : student.stars;
-        let row = `<tr>
-            <td>${medal || index + 1}</td>
-            <td>${student.name}</td>
-            <td>${points}</td>
-            <td>${points}</td>
-        </tr>`;
-        dataBody.innerHTML += row;
+        const points = naughtyMode ? student.naughty : student.stars;
+
+        const row = `
+            <tr>
+                <td>${student.no}</td>
+                <td>${student.name}</td>
+                <td>${medal} ${points}</td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
     });
-
-    document.body.classList.toggle("naughty-mode", isNaughty);
 }
 
-modeSwitch.addEventListener("change", renderTable);
+modeSwitch.addEventListener("change", () => {
+    renderTable(modeSwitch.checked);
+});
 
 fetchData();
 </script>
-
 </body>
 </html>
