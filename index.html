@@ -1,136 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Stars & Naughty List</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #fff8e1;
-        margin: 0;
-        padding: 0;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stars</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#FFD700" />
+  <style>
+    :root{
+      --bg:#fff8e1;
+      --card:#ffffff;
+      --head:#ffeb3b;
+      --border:#ffcc80;
+      --text:#333;
+      --hover:#ffe082;
+      --shadow:0 4px 8px rgba(0,0,0,.2);
     }
-    header {
-        background: #FFD700;
-        padding: 10px;
-        display: flex;
-        align-items: center;
+    body.naughty {
+      --bg:#0a0a0a;
+      --card:#121212;
+      --head:#2a0000;
+      --border:#3a0000;
+      --text:#f8d7da;
+      --hover:#1a0000;
+      --shadow:0 6px 14px rgba(255,0,0,.15);
     }
-    label {
-        font-weight: bold;
-        margin-left: 10px;
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      transition:background .25s ease, color .25s ease;
     }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
+
+    /* Top bar with switch */
+    .topbar{
+      width:100%;
+      max-width:720px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      padding:8px 6px;
+      backdrop-filter:saturate(140%) blur(6px);
+      z-index:10;
     }
-    th, td {
-        border: 1px solid #ccc;
-        padding: 8px;
+
+    h1{
+      margin:0 0 6px 0;
+      font-size:1.6rem;
+      color:#ff5722;
+      transition:color .25s ease;
     }
-    th {
-        background: #fdd835;
+    body.naughty h1{ color:#ff3b3b; }
+
+    /* Switch */
+    .switch-wrap{
+      display:flex; align-items:center; gap:8px;
     }
-    .naughty-mode {
-        background-color: #1c1c1c;
-        color: white;
+    .mode-label{
+      font-size:.95rem; user-select:none;
     }
-    .naughty-mode th {
-        background: #ff1744;
+    .switch{
+      position:relative; width:58px; height:30px;
     }
-</style>
+    .switch input{ display:none; }
+    .slider{
+      position:absolute; inset:0; background:#ffd54f; border-radius:999px;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
+      transition:background .25s ease;
+    }
+    .knob{
+      position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
+      background:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:15px; transition:transform .25s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
+    input:checked + .slider{ background:#8b0000; }
+    input:checked + .slider .knob{ transform:translateX(28px); }
+
+    .hint{ font-size:.85rem; opacity:.8; margin-top:-6px; }
+
+    /* Table */
+    .table-wrap{
+      width:100%; max-width:720px; background:var(--card);
+      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    table{
+      width:100%; border-collapse:collapse; background:var(--card);
+    }
+    thead th{
+      background:var(--head); color:#333; text-align:center;
+      padding:10px; font-weight:700;
+    }
+    tbody td{
+      border-top:2px solid var(--border);
+      padding:10px; font-size:16px; text-align:center;
+    }
+    tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
+    body.naughty tbody tr:nth-child(even){ background:#151515; }
+    tbody tr:hover{ background:var(--hover); }
+
+    /* Column widths + alignment */
+    th:nth-child(1), td:nth-child(1){ width:40px; }
+    th:nth-child(2), td:nth-child(2){ width:32%; text-align:left; }
+    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px; }
+    th:nth-child(4), td:nth-child(4){ width:64px; }
+
+    /* Mode badge */
+    .badge{
+      margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
+      background:#fff3cd; color:#795548; display:inline-flex; align-items:center; gap:6px;
+      box-shadow:0 2px 6px rgba(0,0,0,.1);
+    }
+    body.naughty .badge{ background:#330000; color:#ffb3b3; }
+
+    .empty{
+      padding:18px; text-align:center; opacity:.8;
+    }
+
+    @media (min-width:900px){
+      h1{ font-size:1.8rem; }
+      th,td{ font-size:17px; }
+      th:nth-child(2), td:nth-child(2){ width:28%; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <input type="checkbox" id="modeSwitch">
-        <label for="modeSwitch">Show Naughty List</label>
-    </header>
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th id="pointsHeader">Stars</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
+  <div class="topbar">
+    <div class="switch-wrap">
+      <label class="switch">
+        <input id="modeToggle" type="checkbox" aria-label="Toggle Naughty Mode">
+        <div class="slider"><div class="knob">🌟</div></div>
+      </label>
+      <span class="mode-label" id="modeLabel">Stars</span>
+    </div>
+    <h1>Student Points</h1>
+  </div>
+
+  <div class="badge" id="modeBadge">🌟 Stars Ranking</div>
+
+  <div class="table-wrap">
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Name</th>
+          <th id="pointsHeader">Stars</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
     </table>
+  </div>
 
-<script>
-const sheetId = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
-const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+  <script>
+    // === CONFIG: Google Sheet ===
+    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
+    const sheetName = "Sheet1"; // change if needed
 
-const tableBody = document.querySelector("#dataTable tbody");
-const pointsHeader = document.getElementById("pointsHeader");
-const modeSwitch = document.getElementById("modeSwitch");
+    // We fetch A (names), B (stars), F (naughty)
+    const query = encodeURIComponent("SELECT A,B,F");
+    const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
-let data = [];
+    const tbody = document.querySelector("#studentTable tbody");
+    const modeToggle = document.querySelector("#modeToggle");
+    const modeLabel  = document.querySelector("#modeLabel");
+    const modeBadge  = document.querySelector("#modeBadge");
+    const pointsHeader = document.querySelector("#pointsHeader");
+    const knob = document.querySelector(".knob");
 
-function fetchData() {
-    fetch(sheetURL)
-        .then(res => res.text())
-        .then(raw => {
-            const json = JSON.parse(raw.substr(47).slice(0, -2));
-            const rows = json.table.rows;
+    let dataRows = []; // keep raw rows
+    let currentMode = "stars"; // "stars" or "naughty"
 
-            data = rows.map((row, index) => ({
-                no: index + 1,
-                name: row.c[1] ? row.c[1].v : "",
-                stars: row.c[2] ? row.c[2].v : 0,
-                naughty: row.c[5] ? row.c[5].v : 0
-            }));
-
-            renderTable(false);
-        })
-        .catch(err => console.error("Error loading data:", err));
-}
-
-function renderTable(naughtyMode) {
-    tableBody.innerHTML = "";
-
-    let sortedData;
-    if (naughtyMode) {
-        sortedData = [...data].sort((a, b) => b.naughty - a.naughty);
-        pointsHeader.textContent = "Naughty Points";
-        document.body.classList.add("naughty-mode");
-    } else {
-        sortedData = [...data].sort((a, b) => b.stars - a.stars);
-        pointsHeader.textContent = "Stars";
-        document.body.classList.remove("naughty-mode");
+    function countEmojis(str, emojiRegex){
+      if (!str) return 0;
+      const m = str.match(emojiRegex);
+      return m ? m.length : 0;
     }
 
-    sortedData.forEach((student, index) => {
-        let medal = "";
-        if (!naughtyMode) {
-            if (index === 0) medal = "🥇";
-            else if (index === 1) medal = "🥈";
-            else if (index === 2) medal = "🥉";
+    function renderTable(){
+      tbody.innerHTML = "";
+      const rows = [];
+
+      dataRows.forEach((row) => {
+        const name = row.c[0]?.v || "";
+        const starsStr = row.c[1]?.v || "";  // B
+        const naughtyStr = row.c[2]?.v || ""; // F
+
+        if (!name.trim()) return;
+
+        const starsTotal   = countEmojis(starsStr, /🌟/g);
+        const naughtyTotal = countEmojis(naughtyStr, /❌/g);
+
+        rows.push({
+          name,
+          raw: currentMode === "stars" ? starsStr : naughtyStr,
+          total: currentMode === "stars" ? starsTotal : naughtyTotal,
+          starsTotal,
+          naughtyTotal
+        });
+      });
+
+      // sort by selected total desc
+      rows.sort((a,b) => b.total - a.total);
+
+      rows.forEach((r, idx) => {
+        // medals per mode
+        let rank = idx + 1;
+        if (currentMode === "stars"){
+          if (idx === 0) rank = "🥇";
+          else if (idx === 1) rank = "🥈";
+          else if (idx === 2) rank = "🥉";
         } else {
-            if (index === 0) medal = "☠️";
-            else if (index === 1) medal = "💀";
-            else if (index === 2) medal = "🦴";
+          if (idx === 0) rank = "☠️";
+          else if (idx === 1) rank = "💀";
+          else if (idx === 2) rank = "🦴";
         }
 
-        const points = naughtyMode ? student.naughty : student.stars;
-
-        const row = `
-            <tr>
-                <td>${student.no}</td>
-                <td>${student.name}</td>
-                <td>${medal} ${points}</td>
-            </tr>
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${rank}</td>
+          <td>${r.name}</td>
+          <td class="points">${r.raw || ""}</td>
+          <td>${r.total}</td>
         `;
-        tableBody.innerHTML += row;
+        tbody.appendChild(tr);
+      });
+
+      if (rows.length === 0){
+        tbody.innerHTML = `<tr><td class="empty" colspan="4">No data</td></tr>`;
+      }
+    }
+
+    function applyModeUI(){
+      if (currentMode === "stars"){
+        document.body.classList.remove("naughty");
+        modeLabel.textContent = "Stars";
+        modeBadge.textContent = "🌟 Stars Ranking";
+        pointsHeader.textContent = "Stars";
+        knob.textContent = "🌟";
+      } else {
+        document.body.classList.add("naughty");
+        modeLabel.textContent = "Naughty";
+        modeBadge.textContent = "❌ Naughty Ranking";
+        pointsHeader.textContent = "Naughty";
+        knob.textContent = "❌";
+      }
+    }
+
+    function saveCache(){
+      try {
+        localStorage.setItem("stars_trial_cache_v1", JSON.stringify(dataRows));
+      } catch(e){}
+    }
+
+    function loadCache(){
+      try {
+        const raw = localStorage.getItem("stars_trial_cache_v1");
+        if (!raw) return false;
+        dataRows = JSON.parse(raw);
+        return Array.isArray(dataRows);
+      } catch(e){ return false; }
+    }
+
+    function fetchData(){
+      fetch(baseURL)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.substr(47).slice(0, -2));
+          dataRows = json.table.rows || [];
+          saveCache();
+          renderTable();
+        })
+        .catch(() => {
+          // offline fallback from localStorage
+          if (loadCache()){
+            renderTable();
+          } else {
+            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+          }
+        });
+    }
+
+    // toggle handler
+    modeToggle.addEventListener("change", () => {
+      currentMode = modeToggle.checked ? "naughty" : "stars";
+      applyModeUI();
+      renderTable();
     });
-}
 
-modeSwitch.addEventListener("change", () => {
-    renderTable(modeSwitch.checked);
-});
+    // init
+    applyModeUI();
+    fetchData();
 
-fetchData();
-</script>
+    // PWA: register service worker
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+      });
+    }
+  </script>
 </body>
 </html>
