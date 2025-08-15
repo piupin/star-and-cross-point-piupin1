@@ -1,5 +1,5 @@
-const CACHE_NAME = 'stars-trial-cache-v1';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'stars-cache-v2';
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
@@ -7,40 +7,44 @@ const URLS_TO_CACHE = [
   './icons/icon-512x512.png'
 ];
 
+// Install and cache app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
-  self.skipWaiting();
 });
 
+// Activate and clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(names =>
-      Promise.all(names.map(n => (n !== CACHE_NAME ? caches.delete(n) : null)))
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
     )
   );
-  self.clients.claim();
 });
 
-// SPA-friendly: always serve index.html for navigations (prevents 404 on GH Pages)
+// Fetch handler
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      caches.match('./index.html').then(resp => resp || fetch('./index.html'))
-    );
+  const requestUrl = event.request.url;
+
+  // Always fetch fresh data from Google Sheets
+  if (requestUrl.includes('docs.google.com/spreadsheets')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
-  // Cache-first for static files; network for others
+  // Cache-first for everything else
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).then(netRes => {
-        // Optionally cache fetched static assets
-        const clone = netRes.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        return netRes;
-      }).catch(() => cached);
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
     })
   );
 });
