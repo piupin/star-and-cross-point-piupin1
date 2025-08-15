@@ -1,4 +1,5 @@
-const CACHE_NAME = 'stars-cache-v2';
+const CACHE_PREFIX = 'stars-cache-';
+const CACHE_NAME = CACHE_PREFIX + Date.now(); // Unique cache name each deploy
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -14,6 +15,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
+  self.skipWaiting(); // Activate new SW immediately
 });
 
 // Activate and clean old caches
@@ -21,14 +23,13 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys
+          .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
       )
     )
   );
+  self.clients.claim();
 });
 
 // Fetch handler
