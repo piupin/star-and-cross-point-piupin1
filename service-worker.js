@@ -8,15 +8,15 @@ const ASSETS_TO_CACHE = [
   "./icons/icon-512x512.png"
 ];
 
-// Install & cache app shell
+// Install: cache app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
-  self.skipWaiting(); // allow activation right away
+  self.skipWaiting(); // force new worker to activate immediately
 });
 
-// Activate & clear old caches
+// Activate: clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -27,11 +27,10 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-
-  self.clients.claim(); // take control immediately
+  self.clients.claim(); // take control of open pages
 });
 
-// Fetch handler
+// Fetch: cache-first for static, network-first for sheet
 self.addEventListener("fetch", (event) => {
   const requestUrl = event.request.url;
 
@@ -41,7 +40,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for static assets
+  // Cache-first for everything else
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return (
