@@ -8,15 +8,15 @@ const ASSETS_TO_CACHE = [
   "./icons/icon-512x512.png"
 ];
 
-// Install and pre-cache app shell
+// Install: pre-cache app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
-  self.skipWaiting(); // activate immediately
+  self.skipWaiting();
 });
 
-// Activate and remove old caches
+// Activate: remove old caches + refresh clients
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -28,37 +28,42 @@ self.addEventListener("activate", (event) => {
     )
   );
 
-  // Take control of all clients immediately
   self.clients.claim();
 
-  // 🔄 Force-refresh all open clients with the new version
-  self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-    clients.forEach((client) => {
-      client.navigate(client.url);
+  // Force refresh all tabs
+  self.clients.matchAll({ type: "window", includeUncontrolled: true })
+    .then((clients) => {
+      clients.forEach((client) => client.navigate(client.url));
     });
-  });
 });
 
 // Fetch strategy
 self.addEventListener("fetch", (event) => {
   const requestUrl = event.request.url;
 
-  // Always fetch live data from Google Sheets
+  // 🔄 For Google Sheets: try network first, fallback to cache
   if (requestUrl.includes("docs.google.com/spreadsheets")) {
-    event.respondWith(fetch(event.request));
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request)) // fallback when offline
+    );
     return;
   }
 
-  // Cache-first for everything else
+  // 📦 For everything else: cache-first
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return (
         cachedResponse ||
         fetch(event.request).then((response) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
         })
       );
     })
