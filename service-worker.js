@@ -1,5 +1,6 @@
 const CACHE_PREFIX = "stars-cache-";
 const CACHE_NAME = CACHE_PREFIX + Date.now();
+
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -8,7 +9,7 @@ const ASSETS_TO_CACHE = [
   "./icons/icon-512x512.png"
 ];
 
-// Install & cache app shell
+// Install & pre-cache
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -16,7 +17,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting(); // activate immediately
 });
 
-// Activate & clear old caches
+// Activate & clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -27,7 +28,6 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-
   self.clients.claim();
 });
 
@@ -35,13 +35,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const requestUrl = event.request.url;
 
-  // Always fetch live data from Google Sheets
+  // Always live fetch Google Sheets data
   if (requestUrl.includes("docs.google.com/spreadsheets")) {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Cache-first for everything else
+  // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return (
