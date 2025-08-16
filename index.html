@@ -40,7 +40,6 @@
       transition:background .25s ease, color .25s ease;
     }
 
-    /* Top bar with switch */
     .topbar{
       width:100%;
       max-width:720px;
@@ -62,16 +61,9 @@
     }
     body.naughty h1{ color:#ff3b3b; }
 
-    /* Switch */
-    .switch-wrap{
-      display:flex; align-items:center; gap:8px;
-    }
-    .mode-label{
-      font-size:.95rem; user-select:none;
-    }
-    .switch{
-      position:relative; width:58px; height:30px;
-    }
+    .switch-wrap{ display:flex; align-items:center; gap:8px; }
+    .mode-label{ font-size:.95rem; user-select:none; }
+    .switch{ position:relative; width:58px; height:30px; }
     .switch input{ display:none; }
     .slider{
       position:absolute; inset:0; background:#ffd54f; border-radius:999px;
@@ -87,16 +79,11 @@
     input:checked + .slider{ background:#8b0000; }
     input:checked + .slider .knob{ transform:translateX(28px); }
 
-    .hint{ font-size:.85rem; opacity:.8; margin-top:-6px; }
-
-    /* Table */
     .table-wrap{
       width:100%; max-width:720px; background:var(--card);
       border-radius:12px; overflow:hidden; box-shadow:var(--shadow);
     }
-    table{
-      width:100%; border-collapse:collapse; background:var(--card);
-    }
+    table{ width:100%; border-collapse:collapse; background:var(--card); }
     thead th{
       background:var(--head); color:#333; text-align:center;
       padding:10px; font-weight:700;
@@ -109,13 +96,11 @@
     body.naughty tbody tr:nth-child(even){ background:#151515; }
     tbody tr:hover{ background:var(--hover); }
 
-    /* Column widths + alignment */
     th:nth-child(1), td:nth-child(1){ width:40px; }
     th:nth-child(2), td:nth-child(2){ width:32%; text-align:left; }
     th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px; }
     th:nth-child(4), td:nth-child(4){ width:64px; }
 
-    /* Mode badge */
     .badge{
       margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
       background:#fff3cd; color:#795548; display:inline-flex; align-items:center; gap:6px;
@@ -123,14 +108,26 @@
     }
     body.naughty .badge{ background:#330000; color:#ffb3b3; }
 
-    .empty{
-      padding:18px; text-align:center; opacity:.8;
-    }
+    .empty{ padding:18px; text-align:center; opacity:.8; }
 
-    @media (min-width:900px){
-      h1{ font-size:1.8rem; }
-      th,td{ font-size:17px; }
-      th:nth-child(2), td:nth-child(2){ width:28%; }
+    /* Notices / Reasons */
+    .notice-wrap{
+      width:100%; max-width:720px;
+      background:var(--card);
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      margin-top:12px;
+      padding:10px 14px;
+    }
+    .notice-wrap h2{
+      margin:0 0 6px;
+      font-size:1.1rem;
+      color:#d32f2f;
+    }
+    .notice-item{
+      margin:4px 0;
+      font-size:.95rem;
+      line-height:1.3;
     }
   </style>
 </head>
@@ -162,13 +159,18 @@
     </table>
   </div>
 
-  <script>
-    // === CONFIG: Google Sheet ===
-    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
-    const sheetName = "Sheet1"; // change if needed
+  <!-- Notices/Reasons go here -->
+  <div class="notice-wrap" id="noticeSection">
+    <h2 id="noticeTitle">Notices</h2>
+    <div id="noticeList">Loading…</div>
+  </div>
 
-    // We fetch A (names), B (stars), F (naughty)
-    const query = encodeURIComponent("SELECT A,B,F");
+  <script>
+    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
+    const sheetName = "Sheet1";
+
+    // We fetch A (names), B (stars), F (naughty), M (notices), P (reasons)
+    const query = encodeURIComponent("SELECT A,B,F,M,P");
     const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
     const tbody = document.querySelector("#studentTable tbody");
@@ -178,8 +180,12 @@
     const pointsHeader = document.querySelector("#pointsHeader");
     const knob = document.querySelector(".knob");
 
-    let dataRows = []; // keep raw rows
-    let currentMode = "stars"; // "stars" or "naughty"
+    const noticeSection = document.getElementById("noticeSection");
+    const noticeTitle = document.getElementById("noticeTitle");
+    const noticeList = document.getElementById("noticeList");
+
+    let dataRows = [];
+    let currentMode = "stars";
 
     function countEmojis(str, emojiRegex){
       if (!str) return 0;
@@ -193,8 +199,8 @@
 
       dataRows.forEach((row) => {
         const name = row.c[0]?.v || "";
-        const starsStr = row.c[1]?.v || "";  // B
-        const naughtyStr = row.c[2]?.v || ""; // F
+        const starsStr = row.c[1]?.v || "";
+        const naughtyStr = row.c[2]?.v || "";
 
         if (!name.trim()) return;
 
@@ -210,11 +216,9 @@
         });
       });
 
-      // sort by selected total desc
       rows.sort((a,b) => b.total - a.total);
 
       rows.forEach((r, idx) => {
-        // medals per mode
         let rank = idx + 1;
         if (currentMode === "stars"){
           if (idx === 0) rank = "🥇";
@@ -241,6 +245,38 @@
       }
     }
 
+    function renderNotices(){
+      noticeList.innerHTML = "";
+
+      if (currentMode === "stars"){
+        noticeTitle.textContent = "Notices";
+        dataRows.forEach((row) => {
+          const notice = row.c[3]?.v || ""; // M column
+          if (notice.trim()){
+            const div = document.createElement("div");
+            div.className = "notice-item";
+            div.textContent = "• " + notice;
+            noticeList.appendChild(div);
+          }
+        });
+      } else {
+        noticeTitle.textContent = "Reasons";
+        dataRows.forEach((row) => {
+          const reason = row.c[4]?.v || ""; // P column
+          if (reason.trim()){
+            const div = document.createElement("div");
+            div.className = "notice-item";
+            div.textContent = "• " + reason;
+            noticeList.appendChild(div);
+          }
+        });
+      }
+
+      if (!noticeList.innerHTML.trim()){
+        noticeList.textContent = "No entries";
+      }
+    }
+
     function applyModeUI(){
       if (currentMode === "stars"){
         document.body.classList.remove("naughty");
@@ -259,13 +295,13 @@
 
     function saveCache(){
       try {
-        localStorage.setItem("stars_trial_cache_v1", JSON.stringify(dataRows));
+        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
       } catch(e){}
     }
 
     function loadCache(){
       try {
-        const raw = localStorage.getItem("stars_trial_cache_v1");
+        const raw = localStorage.getItem("stars_trial_cache_v2");
         if (!raw) return false;
         dataRows = JSON.parse(raw);
         return Array.isArray(dataRows);
@@ -280,29 +316,29 @@
           dataRows = json.table.rows || [];
           saveCache();
           renderTable();
+          renderNotices();
         })
         .catch(() => {
-          // offline fallback from localStorage
           if (loadCache()){
             renderTable();
+            renderNotices();
           } else {
             tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+            noticeList.textContent = "Offline & no saved data";
           }
         });
     }
 
-    // toggle handler
     modeToggle.addEventListener("change", () => {
       currentMode = modeToggle.checked ? "naughty" : "stars";
       applyModeUI();
       renderTable();
+      renderNotices();
     });
 
-    // init
     applyModeUI();
     fetchData();
 
-    // PWA: register service worker
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
