@@ -132,21 +132,22 @@
     }
 
     /* Update banner */
-    .update-banner{
+    .update-banner {
+      display:none;
       position:fixed;
-      bottom:-60px;
-      left:50%;
+      bottom:20px; left:50%;
       transform:translateX(-50%);
       background:#4caf50;
       color:#fff;
       padding:10px 18px;
       border-radius:8px;
-      font-weight:600;
-      transition:bottom .4s ease;
-      box-shadow:0 4px 8px rgba(0,0,0,.25);
+      box-shadow:0 2px 6px rgba(0,0,0,.3);
+      font-size:.95rem;
       z-index:1000;
+      animation:fadeIn 0.4s ease;
     }
-    .update-banner.show{ bottom:20px; }
+    .update-banner.show { display:block; }
+    @keyframes fadeIn { from{opacity:0; transform:translate(-50%,20px);} to{opacity:1; transform:translate(-50%,0);} }
   </style>
 </head>
 <body>
@@ -183,13 +184,14 @@
     <div id="noticeList">Loading…</div>
   </div>
 
-  <!-- Update banner -->
-  <div class="update-banner" id="updateBanner">✅ App updated to latest version</div>
+  <!-- Update Banner -->
+  <div class="update-banner" id="updateBanner">
+    ✅ App updated to latest version
+  </div>
 
   <script>
     const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
     const sheetName = "Sheet1";
-
     const query = encodeURIComponent("SELECT A,B,F,M,P");
     const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
@@ -202,7 +204,6 @@
 
     const noticeTitle = document.getElementById("noticeTitle");
     const noticeList = document.getElementById("noticeList");
-    const updateBanner = document.getElementById("updateBanner");
 
     let dataRows = [];
     let currentMode = "stars";
@@ -221,7 +222,6 @@
         const name = row.c[0]?.v || "";
         const starsStr = row.c[1]?.v || "";
         const naughtyStr = row.c[2]?.v || "";
-
         if (!name.trim()) return;
 
         const starsTotal   = countEmojis(starsStr, /🌟/g);
@@ -265,7 +265,6 @@
 
     function renderNotices(){
       noticeList.innerHTML = "";
-
       if (currentMode === "stars"){
         noticeTitle.textContent = "Notices";
         dataRows.forEach((row) => {
@@ -289,7 +288,6 @@
           }
         });
       }
-
       if (!noticeList.innerHTML.trim()){
         noticeList.textContent = "No entries";
       }
@@ -312,9 +310,7 @@
     }
 
     function saveCache(){
-      try {
-        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
-      } catch(e){}
+      try { localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows)); } catch(e){}
     }
 
     function loadCache(){
@@ -333,6 +329,44 @@
           const json = JSON.parse(text.substr(47).slice(0, -2));
           dataRows = json.table.rows || [];
           saveCache();
+          renderTable();
+          renderNotices();
+        })
+        .catch(() => {
+          if (loadCache()){
+            renderTable();
+            renderNotices();
+          } else {
+            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+            noticeList.textContent = "Offline & no saved data";
+          }
+        });
+    }
+
+    modeToggle.addEventListener("change", () => {
+      currentMode = modeToggle.checked ? "naughty" : "stars";
+      applyModeUI();
+      renderTable();
+      renderNotices();
+    });
+
+    applyModeUI();
+    fetchData();
+
+    // ✅ PWA service worker + update banner
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+      });
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        const banner = document.getElementById("updateBanner");
+        banner.classList.add("show");
+        setTimeout(() => banner.classList.remove("show"), 4000);
+      });
+    }
+  </script>
+</body>
+</html>);
           renderTable();
           renderNotices();
         })
