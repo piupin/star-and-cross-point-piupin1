@@ -733,6 +733,13 @@
         banner.classList.add("show");
         setTimeout(() => banner.classList.remove("show"), 4000);
       });
+    } 
+    if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data.action === "reload") {
+      window.location.reload();
+    }
+  });
     }
   </script>
 
