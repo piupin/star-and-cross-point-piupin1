@@ -132,6 +132,27 @@
       font-size:.95rem;
       line-height:1.3;
     }
+
+    /* 🔔 Update banner */
+    .update-banner{
+      position:fixed;
+      bottom:12px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#323232;
+      color:#fff;
+      padding:8px 16px;
+      border-radius:20px;
+      font-size:.9rem;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .4s ease;
+    }
+    .update-banner.show{
+      opacity:1;
+      pointer-events:auto;
+    }
   </style>
 </head>
 <body>
@@ -168,6 +189,9 @@
     <div id="noticeList">Loading…</div>
   </div>
 
+  <!-- 🔔 Update banner -->
+  <div class="update-banner" id="updateBanner">✅ App updated to the latest version</div>
+
   <script>
     const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
     const sheetName = "Sheet1";
@@ -185,6 +209,8 @@
 
     const noticeTitle = document.getElementById("noticeTitle");
     const noticeList = document.getElementById("noticeList");
+
+    const updateBanner = document.getElementById("updateBanner");
 
     let dataRows = [];
     let currentMode = "stars";
@@ -331,6 +357,28 @@
 
     modeToggle.addEventListener("change", () => {
       currentMode = modeToggle.checked ? "naughty" : "stars";
+      applyModeUI();
+      renderTable();
+      renderNotices();
+    });
+
+    applyModeUI();
+    fetchData();
+
+    // Register SW + listen for updates
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+      });
+
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        updateBanner.classList.add("show");
+        setTimeout(() => updateBanner.classList.remove("show"), 4000);
+      });
+    }
+  </script>
+</body>
+</html>tars";
       applyModeUI();
       renderTable();
       renderNotices();
