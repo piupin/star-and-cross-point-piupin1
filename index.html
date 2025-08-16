@@ -124,6 +124,10 @@
       font-size:1.1rem;
       color:#d32f2f;
     }
+    /* 🔴 Make "Reasons" stand out in Naughty Mode */
+    body.naughty .notice-wrap h2 {
+      color: #ff6666;
+    }
     .notice-item{
       margin:4px 0;
       font-size:.95rem;
@@ -169,7 +173,7 @@
     const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
     const sheetName = "Sheet1";
 
-    // We fetch A (names), B (stars), F (naughty), M (notices), P (reasons)
+    // Fetch A (names), B (stars), F (naughty), M (notices), P (reasons)
     const query = encodeURIComponent("SELECT A,B,F,M,P");
     const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
@@ -180,7 +184,6 @@
     const pointsHeader = document.querySelector("#pointsHeader");
     const knob = document.querySelector(".knob");
 
-    const noticeSection = document.getElementById("noticeSection");
     const noticeTitle = document.getElementById("noticeTitle");
     const noticeList = document.getElementById("noticeList");
 
@@ -211,8 +214,6 @@
           name,
           raw: currentMode === "stars" ? starsStr : naughtyStr,
           total: currentMode === "stars" ? starsTotal : naughtyTotal,
-          starsTotal,
-          naughtyTotal
         });
       });
 
@@ -293,43 +294,39 @@
       }
     }
 
-    function saveCache(){
-      try {
-        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
-      } catch(e){}
-    }
-
-    function loadCache(){
-      try {
-        const raw = localStorage.getItem("stars_trial_cache_v2");
-        if (!raw) return false;
-        dataRows = JSON.parse(raw);
-        return Array.isArray(dataRows);
-      } catch(e){ return false; }
-    }
-
     function fetchData(){
       fetch(baseURL)
         .then(res => res.text())
         .then(text => {
           const json = JSON.parse(text.substr(47).slice(0, -2));
           dataRows = json.table.rows || [];
-          saveCache();
           renderTable();
           renderNotices();
         })
         .catch(() => {
-          if (loadCache()){
-            renderTable();
-            renderNotices();
-          } else {
-            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
-            noticeList.textContent = "Offline & no saved data";
-          }
+          tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+          noticeList.textContent = "Offline & no saved data";
         });
     }
 
     modeToggle.addEventListener("change", () => {
+      currentMode = modeToggle.checked ? "naughty" : "stars";
+      applyModeUI();
+      renderTable();
+      renderNotices();
+    });
+
+    applyModeUI();
+    fetchData();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+      });
+    }
+  </script>
+</body>
+</html>ddEventListener("change", () => {
       currentMode = modeToggle.checked ? "naughty" : "stars";
       applyModeUI();
       renderTable();
