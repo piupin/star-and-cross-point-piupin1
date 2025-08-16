@@ -8,15 +8,15 @@ const ASSETS_TO_CACHE = [
   "./icons/icon-512x512.png"
 ];
 
-// Install: pre-cache app shell
+// Install & cache app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // immediately move to activate
 });
 
-// Activate: remove old caches + refresh clients
+// Activate & clear old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -30,40 +30,34 @@ self.addEventListener("activate", (event) => {
 
   self.clients.claim();
 
-  // Force refresh all tabs
-  self.clients.matchAll({ type: "window", includeUncontrolled: true })
-    .then((clients) => {
-      clients.forEach((client) => client.navigate(client.url));
-    });
+  // 🔄 Force all open clients to refresh with the new version
+  self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+    for (const client of clients) {
+      client.navigate(client.url);
+    }
+  });
 });
 
-// Fetch strategy
+// Fetch handler
 self.addEventListener("fetch", (event) => {
   const requestUrl = event.request.url;
 
-  // 🔄 For Google Sheets: try network first, fallback to cache
+  // Always fetch live data from Google Sheets
   if (requestUrl.includes("docs.google.com/spreadsheets")) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match(event.request)) // fallback when offline
-    );
+    event.respondWith(fetch(event.request));
     return;
   }
 
-  // 📦 For everything else: cache-first
+  // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return (
         cachedResponse ||
         fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
         })
       );
     })
