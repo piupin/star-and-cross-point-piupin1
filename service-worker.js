@@ -4,7 +4,7 @@
 const CACHE_PREFIX = "stars-cache-";
 const CACHE_NAME = CACHE_PREFIX + Date.now();
 
-// List of core assets to cache (the "app shell")
+// Core assets (app shell)
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -13,15 +13,15 @@ const ASSETS_TO_CACHE = [
   "./icons/icon-512x512.png"
 ];
 
-// 📥 INSTALL: Cache the app shell
+// 📥 INSTALL
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
-  self.skipWaiting(); // Activate immediately
+  self.skipWaiting(); // activate immediately
 });
 
-// 🧹 ACTIVATE: Remove old caches + claim clients
+// 🧹 ACTIVATE
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -35,25 +35,25 @@ self.addEventListener("activate", (event) => {
 
   self.clients.claim();
 
-  // 🔄 Force refresh so users always see the latest version
+  // 🔄 Tell all clients to reload
   self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
     for (const client of clients) {
-      client.navigate(client.url);
+      client.postMessage({ action: "reload" });
     }
   });
 });
 
-// 🌍 FETCH: Network-first for Google Sheets, cache-first for everything else
+// 🌍 FETCH
 self.addEventListener("fetch", (event) => {
   const requestUrl = event.request.url;
 
-  // Always fetch live data from Google Sheets (don’t cache it)
+  // Always live-fetch Google Sheets
   if (requestUrl.includes("docs.google.com/spreadsheets")) {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Cache-first strategy for static assets
+  // Cache-first strategy
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return (
