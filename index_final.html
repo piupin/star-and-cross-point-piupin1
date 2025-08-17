@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stars</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#FFD700" />
+  <style>
+    :root {
+      --bg:#fff8e1;
+      --card:#ffffff;
+      --head:#ffeb3b;
+      --border:#ffcc80;
+      --text:#333;
+      --hover:#ffe082;
+      --shadow:0 4px 8px rgba(0,0,0,.2);
+    }
+    body.naughty {
+      --bg:#0a0a0a;
+      --card:#121212;
+      --head:#2a0000;
+      --border:#3a0000;
+      --text:#f8d7da;
+      --hover:#1a0000;
+      --shadow:0 6px 14px rgba(255,0,0,.15);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      transition:background .25s ease, color .25s ease;
+    }
+    .topbar{
+      width:100%;
+      max-width:720px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      padding:8px 6px;
+      backdrop-filter:saturate(140%) blur(6px);
+      z-index:10;
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size:1.6rem;
+      color:#ff5722;
+      transition:color .25s ease;
+      cursor:pointer;
+    }
+    body.naughty h1{ color:#ff3b3b; }
+    .switch-wrap{ display:flex; align-items:center; gap:8px; }
+    .mode-label{ font-size:.95rem; user-select:none; }
+    .switch{ position:relative; width:58px; height:30px; }
+    .switch input{ display:none; }
+    .slider{
+      position:absolute; inset:0; background:#ffd54f; border-radius:999px;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
+      transition:background .25s ease;
+    }
+    .knob{
+      position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
+      background:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:15px; transition:transform .25s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
+    input:checked + .slider{ background:#8b0000; }
+    input:checked + .slider .knob{ transform:translateX(28px); }
+    .table-wrap{
+      width:100%; max-width:720px; background:var(--card);
+      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    table{ width:100%; border-collapse:collapse; background:var(--card); }
+    thead th{
+      background:var(--head); color:#333; text-align:center;
+      padding:10px; font-weight:700;
+    }
+    tbody td{
+      border-top:2px solid var(--border);
+      padding:10px; font-size:16px; text-align:center;
+    }
+    tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
+    body.naughty tbody tr:nth-child(even){ background:#151515; }
+    tbody tr:hover{ background:var(--hover); }
+    th:nth-child(1), td:nth-child(1){ width:40px; }
+    th:nth-child(2), td:nth-child(2){ width:32%; text-align:left; }
+    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px; }
+    th:nth-child(4), td:nth-child(4){ width:64px; }
+    .badge{
+      margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
+      background:#fff3cd; color:#795548; display:inline-flex; align-items:center; gap:6px;
+      box-shadow:0 2px 6px rgba(0,0,0,.1);
+    }
+    body.naughty .badge{ background:#330000; color:#ffb3b3; }
+    .empty{ padding:18px; text-align:center; opacity:.8; }
+    .notice-wrap{
+      width:100%; max-width:720px;
+      background:var(--card);
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      margin-top:12px;
+      padding:10px 14px;
+    }
+    .notice-wrap h2{
+      margin:0 0 6px;
+      font-size:1.1rem;
+      color:#d32f2f;
+    }
+    body.naughty .notice-wrap h2{ color:#ff6666; }
+    .notice-item{ margin:4px 0; font-size:.95rem; line-height:1.3; }
+    .update-banner {
+      display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      background:#4caf50; color:#fff; padding:10px 18px; border-radius:8px;
+      font-size:0.95rem; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000;
+      animation:fadeIn 0.4s ease;
+    }
+    .update-banner.show{ display:block; }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translate(-50%,20px); }
+      to { opacity:1; transform:translate(-50%,0); }
+    }
+    /* Side menu */
+    .menu-overlay{
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+      opacity:0; visibility:hidden; transition:0.3s;
+      z-index:50;
+    }
+    .menu-overlay.show{ opacity:1; visibility:visible; }
+    .side-menu{
+      position:fixed; top:0; right:-75%; width:75%; height:100%;
+      background:var(--card); box-shadow:-2px 0 10px rgba(0,0,0,0.2);
+      transition:0.3s; z-index:100; padding:20px; overflow-y:auto;
+    }
+    .side-menu.open{ right:0; }
+    .menu-section{ margin-bottom:16px; }
+    .menu-section h3{ margin:8px 0; font-size:1.1rem; cursor:pointer; }
+    .menu-section ul{ list-style:none; padding-left:10px; display:none; }
+    .menu-section ul.show{ display:block; }
+    .menu-section li{ margin:6px 0; }
+    .menu-section a{ text-decoration:none; color:#007bff; }
+    .teacher-btns button{
+      display:block; margin:10px 0; padding:8px 12px; font-size:0.9rem;
+      border:none; border-radius:6px; background:#ff9800; color:white; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="switch-wrap">
+      <label class="switch">
+        <input id="modeToggle" type="checkbox" aria-label="Toggle Naughty Mode">
+        <div class="slider"><div class="knob">🌟</div></div>
+      </label>
+      <span class="mode-label" id="modeLabel">Stars</span>
+    </div>
+    <h1 id="titleTap">Student Points</h1>
+    <button onclick="openMenu()">⋮</button>
+  </div>
+  <div class="badge" id="modeBadge">🌟 Stars Ranking</div>
+  <div class="table-wrap">
+    <table id="studentTable">
+      <thead><tr><th>No.</th><th>Name</th><th id="pointsHeader">Stars</th><th>Total</th></tr></thead>
+      <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="notice-wrap" id="noticeSection">
+    <h2 id="noticeTitle">Notices</h2>
+    <div id="noticeList">Loading…</div>
+  </div>
+  <div class="update-banner" id="updateBanner">✅ App updated to latest version</div>
+
+  <!-- Side menu -->
+  <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+  <div class="side-menu" id="sideMenu">
+    <div class="menu-section">
+      <h3 onclick="toggleSection('materialsList')">📘 Study Materials</h3>
+      <ul id="materialsList"></ul>
+    </div>
+    <div class="menu-section">
+      <h3 onclick="toggleSection('sitPlanList')">🪑 Sit Plan</h3>
+      <ul id="sitPlanList"><li>Loading…</li></ul>
+      <div class="teacher-btns" id="teacherBtns" style="display:none;">
+        <button onclick="shuffleSitPlan()">Shuffle Sit Plan</button>
+        <button onclick="copySitPlan()">Copy Sit Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top:20px;font-size:0.8rem;color:#888;text-align:center;opacity:0.7;">
+    Made by Piu
+  </footer>
+
+  <script>
+    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk"; // main sheet
+    const sheetName = "Sheet1";
+    const query = encodeURIComponent("SELECT A,B,F,M,P,W,I");
+    const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
+    const pdfSheetID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg"; // pdf sheet
+    const pdfQuery = encodeURIComponent("SELECT A,B,C");
+    const pdfURL = `https://docs.google.com/spreadsheets/d/${pdfSheetID}/gviz/tq?sheet=Sheet1&tq=${pdfQuery}`;
+
+    let dataRows=[]; let currentMode="stars"; let sitPlan=[]; let teacherMode=false;
+    const tbody=document.querySelector("#studentTable tbody");
+    const modeToggle=document.querySelector("#modeToggle");
+    const modeLabel=document.querySelector("#modeLabel");
+    const modeBadge=document.querySelector("#modeBadge");
+    const pointsHeader=document.querySelector("#pointsHeader");
+    const knob=document.querySelector(".knob");
+    const noticeTitle=document.getElementById("noticeTitle");
+    const noticeList=document.getElementById("noticeList");
+    const sitPlanList=document.getElementById("sitPlanList");
+    const teacherBtns=document.getElementById("teacherBtns");
+
+    function countEmojis(str,re){ if(!str) return 0; const m=str.match(re); return m?m.length:0; }
+    function renderTable(){
+      tbody.innerHTML=""; const rows=[];
+      dataRows.forEach((row)=>{
+        const name=row.c[0]?.v||"";
+        const starsStr=row.c[1]?.v||"";
+        const naughtyStr=row.c[2]?.v||"";
+        if(!name.trim()) return;
+        const starsTotal=countEmojis(starsStr,/🌟/g);
+        const naughtyTotal=countEmojis(naughtyStr,/❌/g);
+        rows.push({name,raw:currentMode==="stars"?starsStr:naughtyStr,total:currentMode==="stars"?starsTotal:naughtyTotal});
+      });
+      rows.sort((a,b)=>b.total-a.total);
+      rows.forEach((r,idx)=>{
+        let rank=idx+1;
+        if(currentMode==="stars"){ if(idx===0)rank="🥇"; else if(idx===1)rank="🥈"; else if(idx===2)rank="🥉"; }
+        else{ if(idx===0)rank="☠️"; else if(idx===1)rank="💀"; else if(idx===2)rank="🦴"; }
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${rank}</td><td>${r.name}</td><td>${r.raw||""}</td><td>${r.total}</td>`;
+        tbody.appendChild(tr);
+      });
+      if(rows.length===0) tbody.innerHTML=`<tr><td class="empty" colspan="4">No data</td></tr>`;
+    }
+    function renderNotices(){
+      noticeList.innerHTML="";
+      if(currentMode==="stars"){ noticeTitle.textContent="Notices"; dataRows.forEach((row)=>{ const n=row.c[3]?.v||""; if(n.trim()){ const d=document.createElement("div"); d.className="notice-item"; d.textContent="• "+n; noticeList.appendChild(d); } }); }
+      else{ noticeTitle.textContent="Reasons"; dataRows.forEach((row)=>{ const r=row.c[4]?.v||""; if(r.trim()){ const d=document.createElement("div"); d.className="notice-item"; d.textContent="• "+r; noticeList.appendChild(d); } }); }
+      if(!noticeList.innerHTML.trim()) noticeList.textContent="No entries";
+    }
+    function applyModeUI(){ if(currentMode==="stars"){ document.body.classList.remove("naughty"); modeLabel.textContent="Stars"; modeBadge.textContent="🌟 Stars Ranking"; pointsHeader.textContent="Stars"; knob.textContent="🌟"; } else { document.body.classList.add("naughty"); modeLabel.textContent="Naughty"; modeBadge.textContent="❌ Naughty Ranking"; pointsHeader.textContent="Naughty"; knob.textContent="❌"; } }
+    function fetchData(){
+      fetch(baseURL).then(r=>r.text()).then(t=>{const j=JSON.parse(t.substr(47).slice(0,-2)); dataRows=j.table.rows||[]; renderTable(); renderNotices(); renderSitPlan(dataRows.map(r=>r.c[6]?.v).filter(Boolean)); }).catch(()=>{tbody.innerHTML="<tr><td colspan='4'>Offline</td></tr>";});
+      fetch(pdfURL).then(r=>r.text()).then(t=>{const j=JSON.parse(t.substr(47).slice(0,-2)); const rows=j.table.rows||[]; renderPDF(rows);});
+    }
+    function renderPDF(rows){ const list=document.getElementById("materialsList"); list.innerHTML=""; let currentSubject=""; rows.forEach(r=>{const subject=r.c[0]?.v||""; const chapter=r.c[1]?.v||""; const link=r.c[2]?.v||""; if(subject!==currentSubject){ const li=document.createElement("li"); li.innerHTML=`<strong>${subject}</strong>`; list.appendChild(li); currentSubject=subject; } if(chapter&&link){ const li=document.createElement("li"); li.innerHTML=`<a href="${link}" target="_blank">${chapter}</a>`; list.appendChild(li); } }); }
+    function renderSitPlan(names){ sitPlan=names; sitPlanList.innerHTML=""; names.forEach((n,i)=>{ const li=document.createElement("li"); li.textContent=(i+1)+". "+n; sitPlanList.appendChild(li); }); }
+    function shuffleSitPlan(){ for(let i=sitPlan.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sitPlan[i],sitPlan[j]]=[sitPlan[j],sitPlan[i]]; } renderSitPlan(sitPlan); }
+    function copySitPlan(){ const text=sitPlan.map((n,i)=> (i+1)+". "+n).join("\n"); navigator.clipboard.writeText(text).then(()=>alert("Sit plan copied!")); }
+    function openMenu(){ document.getElementById("sideMenu").classList.add("open"); document.getElementById("menuOverlay").classList.add("show"); document.body.style.overflow="hidden"; }
+    function closeMenu(){ document.getElementById("sideMenu").classList.remove("open"); document.getElementById("menuOverlay").classList.remove("show"); document.body.style.overflow=""; }
+    function toggleSection(id){ document.getElementById(id).classList.toggle("show"); }
+    let tapCount=0; document.getElementById("titleTap").addEventListener("click",()=>{ tapCount++; setTimeout(()=>tapCount=0,1000); if(tapCount===3){ const pwd=prompt("Enter password"); const sheetPwd=dataRows[0]?.c[5]?.v||""; if(pwd===sheetPwd){ teacherMode=true; teacherBtns.style.display="block"; alert("Teacher mode activated"); } else alert("Wrong password"); } });
+    modeToggle.addEventListener("change",()=>{ currentMode=modeToggle.checked?"naughty":"stars"; applyModeUI(); renderTable(); renderNotices(); });
+    applyModeUI(); fetchData();
+    if("serviceWorker" in navigator){ navigator.serviceWorker.register("./service-worker.js"); navigator.serviceWorker.addEventListener("message",(e)=>{ if(e.data.action==="reload"){ const banner=document.getElementById("updateBanner"); banner.classList.add("show"); setTimeout(()=>location.reload(),1500); } }); }
+  </script>
+</body>
+</html>
