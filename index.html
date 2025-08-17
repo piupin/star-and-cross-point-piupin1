@@ -25,185 +25,642 @@
       --hover:#1a0000;
       --shadow:0 6px 14px rgba(255,0,0,.15);
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       background:var(--bg);
       color:var(--text);
       font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display:flex; flex-direction:column; align-items:center;
-      gap:10px; padding:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:12px;
       transition:background .25s ease, color .25s ease;
     }
+
     .topbar{
-      width:100%; max-width:720px; display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; padding:8px 6px;
-      backdrop-filter:saturate(140%) blur(6px); z-index:10;
+      width:100%;
+      max-width:720px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      padding:8px 6px;
+      backdrop-filter:saturate(140%) blur(6px);
+      z-index:10;
     }
+
     h1{
-      margin:0 0 6px 0; font-size:1.6rem; color:#ff5722;
-      cursor:pointer; transition:color .25s ease;
+      margin:0 0 6px 0;
+      font-size:1.6rem;
+      color:#ff5722;
+      transition:color .25s ease;
+      cursor:pointer; /* for triple tap */
     }
     body.naughty h1{ color:#ff3b3b; }
+
     .switch-wrap{ display:flex; align-items:center; gap:8px; }
     .mode-label{ font-size:.95rem; user-select:none; }
     .switch{ position:relative; width:58px; height:30px; }
     .switch input{ display:none; }
-    .slider{ position:absolute; inset:0; background:#ffd54f; border-radius:999px;
-      box-shadow:inset 0 2px 6px rgba(0,0,0,.25); transition:background .25s ease;}
-    .knob{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
+    .slider{
+      position:absolute; inset:0; background:#ffd54f; border-radius:999px;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
+      transition:background .25s ease;
+    }
+    .knob{
+      position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
       background:#fff; display:flex; align-items:center; justify-content:center;
-      font-size:15px; transition:transform .25s ease; box-shadow:0 2px 6px rgba(0,0,0,.25);}
+      font-size:15px; transition:transform .25s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
     input:checked + .slider{ background:#8b0000; }
     input:checked + .slider .knob{ transform:translateX(28px); }
-    .table-wrap{ width:100%; max-width:720px; background:var(--card);
-      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);}
-    table{ width:100%; border-collapse:collapse; background:var(--card);}
-    thead th{ background:var(--head); color:#333; text-align:center; padding:10px; font-weight:700; }
-    tbody td{ border-top:2px solid var(--border); padding:10px; font-size:16px; text-align:center; }
+
+    .table-wrap{
+      width:100%; max-width:720px; background:var(--card);
+      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    table{ width:100%; border-collapse:collapse; background:var(--card); }
+    thead th{
+      background:var(--head); color:#333; text-align:center;
+      padding:10px; font-weight:700;
+    }
+    tbody td{
+      border-top:2px solid var(--border);
+      padding:10px; font-size:16px; text-align:center;
+    }
     tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
     body.naughty tbody tr:nth-child(even){ background:#151515; }
     tbody tr:hover{ background:var(--hover); }
+
     th:nth-child(1), td:nth-child(1){ width:40px; }
     th:nth-child(2), td:nth-child(2){ width:32%; text-align:left; }
-    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px;}
+    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px; }
     th:nth-child(4), td:nth-child(4){ width:64px; }
-    .badge{ margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
+
+    .badge{
+      margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
       background:#fff3cd; color:#795548; display:inline-flex; align-items:center; gap:6px;
-      box-shadow:0 2px 6px rgba(0,0,0,.1);}
+      box-shadow:0 2px 6px rgba(0,0,0,.1);
+    }
     body.naughty .badge{ background:#330000; color:#ffb3b3; }
+
     .empty{ padding:18px; text-align:center; opacity:.8; }
-    .notice-wrap{ width:100%; max-width:720px; background:var(--card);
-      border-radius:10px; box-shadow:var(--shadow); margin-top:12px; padding:10px 14px;}
-    .notice-wrap h2{ margin:0 0 6px; font-size:1.1rem; color:#d32f2f;}
-    body.naughty .notice-wrap h2{ color:#ff6666; }
-    .notice-item{ margin:4px 0; font-size:.95rem; line-height:1.3;}
-    .update-banner{ display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-      background:#4caf50; color:#fff; padding:10px 18px; border-radius:8px; font-size:0.95rem;
-      box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; animation:fadeIn 0.4s ease;}
-    .update-banner.show{ display:block; }
-    @keyframes fadeIn{from{opacity:0; transform:translate(-50%,20px);} to{opacity:1; transform:translate(-50%,0);} }
-    /* Side menu */
-    .side-menu{ position:fixed; top:0; right:-75%; width:75%; height:100%; background:var(--card);
-      box-shadow:-4px 0 12px rgba(0,0,0,.3); z-index:2000; transition:right 0.3s ease;
-      overflow-y:auto; padding:16px;}
-    .side-menu.open{ right:0;}
-    .menu-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(4px);
-      display:none; z-index:1500;}
-    .menu-overlay.show{ display:block;}
+
+    /* Notices / Reasons */
+    .notice-wrap{
+      width:100%; max-width:720px;
+      background:var(--card);
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      margin-top:12px;
+      padding:10px 14px;
+    }
+    .notice-wrap h2{
+      margin:0 0 6px;
+      font-size:1.1rem;
+      color:#d32f2f;
+    }
+    body.naughty .notice-wrap h2{
+      color:#ff6666;
+    }
+    .notice-item{
+      margin:4px 0;
+      font-size:.95rem;
+      line-height:1.3;
+    }
+
+    /* Update banner */
+    .update-banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4caf50;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 1000;
+      animation: fadeIn 0.4s ease;
+    }
+    .update-banner.show { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* ── Right slide menu ───────────────────────── */
+    .menu-button {
+      font-size: 1.5rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -75%;
+      width: 75%;
+      height: 100%;
+      background: var(--card);
+      box-shadow: -2px 0 6px rgba(0,0,0,.2);
+      transition: right 0.3s ease;
+      z-index: 2000;
+      overflow-y: auto;            /* ✅ menu itself scrolls */
+      padding: 16px;
+    }
+    .side-menu.open { right: 0; }
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 1500;
+    }
+    .menu-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .menu-section { margin-bottom: 16px; }
+    .menu-section h3 {
+      margin: 8px 0;
+      font-size: 1.1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .menu-items { display: none; margin-left: 12px; }
+    .menu-items.show { display: block; }
+    .menu-item { margin: 6px 0; font-size: 0.95rem; }
+    .muted { font-size: .85rem; opacity: .75; margin: 6px 0 0; }
+
+    /* Tiny footer */
+    footer{ margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="switch-wrap">
       <label class="switch">
-        <input id="modeToggle" type="checkbox">
+        <input id="modeToggle" type="checkbox" aria-label="Toggle Naughty Mode">
         <div class="slider"><div class="knob">🌟</div></div>
       </label>
       <span class="mode-label" id="modeLabel">Stars</span>
     </div>
     <h1 id="titleTap">Student Points</h1>
-    <button onclick="openMenu()">⋮</button>
+    <div class="menu-button" id="menuBtn">⋮</div>
   </div>
 
   <div class="badge" id="modeBadge">🌟 Stars Ranking</div>
-  <div class="table-wrap"><table id="studentTable">
-    <thead><tr><th>No.</th><th>Name</th><th id="pointsHeader">Stars</th><th>Total</th></tr></thead>
-    <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
-  </table></div>
 
-  <div class="notice-wrap"><h2 id="noticeTitle">Notices</h2><div id="noticeList">Loading…</div></div>
-
-  <!-- Side Menu -->
-  <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
-  <div id="sideMenu" class="side-menu">
-    <h3>Menu</h3>
-    <button onclick="toggleSection('materialsSection')">📘 Study Materials</button>
-    <div id="materialsSection" style="display:none;"></div>
-    <button onclick="toggleSection('sitPlanSection')">🪑 Sit Plan</button>
-    <div id="sitPlanSection" style="display:none;"></div>
+  <div class="table-wrap">
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Name</th>
+          <th id="pointsHeader">Stars</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
+    </table>
   </div>
 
-  <div class="update-banner" id="updateBanner">✅ App updated</div>
+  <!-- Notices/Reasons -->
+  <div class="notice-wrap" id="noticeSection">
+    <h2 id="noticeTitle">Notices</h2>
+    <div id="noticeList">Loading…</div>
+  </div>
 
-  <footer style="margin-top:20px;font-size:0.8rem;color:#888;text-align:center;opacity:0.7;">
-    Made by Piu
-  </footer>
+  <!-- Side Menu -->
+  <div class="side-menu" id="sideMenu" aria-hidden="true">
+    <div class="menu-section">
+      <h3 id="materialsHeader">📘 Study Materials</h3>
+      <div class="menu-items" id="materialsSection">Loading…</div>
+    </div>
+
+    <div class="menu-section">
+      <h3 id="sitPlanHeader">🪑 Sit Plan</h3>
+      <div class="menu-items" id="sitPlanSection">
+        Loading…
+      </div>
+      <div id="teacherControls" class="menu-items" style="display:none; margin-top:8px;">
+        <button id="shuffleBtn" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--head); cursor:pointer;">
+          Shuffle seats
+        </button>
+        <div class="muted">Shuffle only changes your view (not saved anywhere).</div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div id="teacherStatus" class="muted">Student mode</div>
+      <div id="logoutTeacher" class="menu-item" style="display:none; cursor:pointer; text-decoration:underline;">Exit teacher mode</div>
+    </div>
+  </div>
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <!-- Update banner -->
+  <div class="update-banner" id="updateBanner">
+    ✅ App updated to latest version
+  </div>
 
   <script>
-    /* ---- Student Points ---- */
-    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk"; // main sheet
-    const query = encodeURIComponent("SELECT A,B,F,M,P,W,I");
-    const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=Sheet1&tq=${query}`;
-    const tbody=document.querySelector("#studentTable tbody");
-    const modeToggle=document.querySelector("#modeToggle");
-    const modeLabel=document.querySelector("#modeLabel");
-    const modeBadge=document.querySelector("#modeBadge");
-    const pointsHeader=document.querySelector("#pointsHeader");
-    const knob=document.querySelector(".knob");
-    const noticeTitle=document.getElementById("noticeTitle");
-    const noticeList=document.getElementById("noticeList");
-    let dataRows=[],currentMode="stars",teacherPassword="",sitNames=[];
-    function countEmojis(str,re){return !str?0:(str.match(re)||[]).length;}
-    function renderTable(){tbody.innerHTML="";let rows=[];dataRows.forEach(r=>{
-      const name=r.c[0]?.v||"",starsStr=r.c[1]?.v||"",naughtyStr=r.c[2]?.v||"";
-      if(!name.trim())return;
-      rows.push({name,raw:currentMode==="stars"?starsStr:naughtyStr,
-                 total:currentMode==="stars"?countEmojis(starsStr,/🌟/g):countEmojis(naughtyStr,/❌/g)});});
-      rows.sort((a,b)=>b.total-a.total);
-      rows.forEach((r,i)=>{let rank=i+1;if(currentMode==="stars"){if(i===0)rank="🥇";else if(i===1)rank="🥈";else if(i===2)rank="🥉";}
-        else{if(i===0)rank="☠️";else if(i===1)rank="💀";else if(i===2)rank="🦴";}
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${rank}</td><td>${r.name}</td><td>${r.raw||""}</td><td>${r.total}</td>`;
-        tbody.appendChild(tr);});
-      if(!rows.length)tbody.innerHTML=`<tr><td colspan="4" class="empty">No data</td></tr>`;
+    /***** SHEET SETUP *****/
+    const MAIN_SHEET_ID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk"; // names, points, notices, sit names (col I), password W1
+    const MATERIALS_SHEET_ID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg"; // Subject(A), Chapter(B), Link(C)
+    const MAIN_SHEET_NAME = "Sheet1";
+    const MATERIALS_SHEET_NAME = "Sheet1";
+
+    // main: A(name),B(stars),F(naughty),M(notices),P(reasons),I(sit names),W(password)
+    const mainQuery = encodeURIComponent("SELECT A,B,F,M,P,I,W");
+    const mainURL = `https://docs.google.com/spreadsheets/d/${MAIN_SHEET_ID}/gviz/tq?sheet=${MAIN_SHEET_NAME}&tq=${mainQuery}`;
+
+    // materials: A(subject),B(chapter),C(url)
+    const materialsQuery = encodeURIComponent("SELECT A,B,C");
+    const materialsURL = `https://docs.google.com/spreadsheets/d/${MATERIALS_SHEET_ID}/gviz/tq?sheet=${MATERIALS_SHEET_NAME}&tq=${materialsQuery}`;
+
+    /***** DOM *****/
+    const tbody = document.querySelector("#studentTable tbody");
+    const modeToggle = document.querySelector("#modeToggle");
+    const modeLabel  = document.querySelector("#modeLabel");
+    const modeBadge  = document.querySelector("#modeBadge");
+    const pointsHeader = document.querySelector("#pointsHeader");
+    const knob = document.querySelector(".knob");
+
+    const noticeTitle = document.getElementById("noticeTitle");
+    const noticeList = document.getElementById("noticeList");
+
+    const menuBtn = document.getElementById("menuBtn");
+    const sideMenu = document.getElementById("sideMenu");
+    const overlay = document.getElementById("menuOverlay");
+    const materialsHeader = document.getElementById("materialsHeader");
+    const sitPlanHeader = document.getElementById("sitPlanHeader");
+    const materialsSection = document.getElementById("materialsSection");
+    const sitPlanSection = document.getElementById("sitPlanSection");
+    const teacherControls = document.getElementById("teacherControls");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const teacherStatus = document.getElementById("teacherStatus");
+    const logoutTeacher = document.getElementById("logoutTeacher");
+    const titleTap = document.getElementById("titleTap");
+
+    /***** STATE *****/
+    let dataRows = [];
+    let currentMode = "stars";
+    let teacherMode = localStorage.getItem("teacher_mode") === "true";
+    let sheetPassword = "";  // from W1
+    let sitNames = [];       // from column I
+    let studyMaterials = {}; // {Subject: [{chapter, url}, ...]}
+
+    /***** HELPERS *****/
+    function countEmojis(str, emojiRegex){
+      if (!str) return 0;
+      const m = str.match(emojiRegex);
+      return m ? m.length : 0;
     }
-    function renderNotices(){noticeList.innerHTML="";if(currentMode==="stars"){noticeTitle.textContent="Notices";dataRows.forEach(r=>{
-      const n=r.c[3]?.v||"";if(n.trim()){const d=document.createElement("div");d.className="notice-item";d.textContent="• "+n;noticeList.appendChild(d);}});}
-      else{noticeTitle.textContent="Reasons";dataRows.forEach(r=>{const n=r.c[4]?.v||"";if(n.trim()){const d=document.createElement("div");d.className="notice-item";d.textContent="• "+n;noticeList.appendChild(d);}});}
-      if(!noticeList.innerHTML.trim())noticeList.textContent="No entries";}
-    function applyModeUI(){if(currentMode==="stars"){document.body.classList.remove("naughty");modeLabel.textContent="Stars";modeBadge.textContent="🌟 Stars Ranking";pointsHeader.textContent="Stars";knob.textContent="🌟";}
-      else{document.body.classList.add("naughty");modeLabel.textContent="Naughty";modeBadge.textContent="❌ Naughty Ranking";pointsHeader.textContent="Naughty";knob.textContent="❌";}}
-    function fetchData(){fetch(baseURL).then(r=>r.text()).then(t=>{const j=JSON.parse(t.substr(47).slice(0,-2));dataRows=j.table.rows||[];
-      teacherPassword=dataRows[0]?.c[5]?.v||""; sitNames=dataRows.map(r=>r.c[6]?.v).filter(Boolean);
-      renderTable();renderNotices();});}
-    modeToggle.onchange=()=>{currentMode=modeToggle.checked?"naughty":"stars";applyModeUI();renderTable();renderNotices();}
-    applyModeUI();fetchData();
 
-    /* ---- Side Menu ---- */
-    function openMenu(){document.getElementById("sideMenu").classList.add("open");
-      document.getElementById("menuOverlay").classList.add("show");
-      document.body.style.overflow="hidden";}
-    function closeMenu(){document.getElementById("sideMenu").classList.remove("open");
-      document.getElementById("menuOverlay").classList.remove("show");
-      document.body.style.overflow="";}
-    function toggleSection(id){const el=document.getElementById(id);
-      el.style.display=el.style.display==="none"?"block":"none";}
+    function setTeacherMode(on){
+      teacherMode = !!on;
+      localStorage.setItem("teacher_mode", teacherMode ? "true" : "false");
+      teacherStatus.textContent = teacherMode ? "Teacher mode active" : "Student mode";
+      teacherControls.style.display = teacherMode ? "block" : "none";
+      logoutTeacher.style.display = teacherMode ? "block" : "none";
+    }
 
-    /* ---- Study Materials ---- */
-    const materialsSheet="1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg"; 
-    const materialsDiv=document.getElementById("materialsSection");
-    fetch(`https://docs.google.com/spreadsheets/d/${materialsSheet}/gviz/tq?tqx=out:json`).then(r=>r.text()).then(txt=>{
-      const data=JSON.parse(txt.substr(47).slice(0,-2));const rows=data.table.rows;
-      let bySubject={};rows.forEach(r=>{let sub=r.c[0]?.v||"",ch=r.c[1]?.v||"",link=r.c[2]?.v||"";if(!sub||!ch||!link)return;
-        if(!bySubject[sub])bySubject[sub]=[];bySubject[sub].push({ch,link});});
-      for(const sub in bySubject){const h=document.createElement("h4");h.textContent=sub;materialsDiv.appendChild(h);
-        bySubject[sub].forEach(x=>{const a=document.createElement("a");a.textContent=x.ch;a.href=x.link;a.target="_blank";a.style.display="block";materialsDiv.appendChild(a);});}
+    function renderTable(){
+      tbody.innerHTML = "";
+      const rows = [];
+
+      dataRows.forEach((row) => {
+        const name = row.c[0]?.v || "";
+        const starsStr = row.c[1]?.v || "";
+        const naughtyStr = row.c[2]?.v || "";
+        if (!name.trim()) return;
+
+        const starsTotal   = countEmojis(starsStr, /🌟/g);
+        const naughtyTotal = countEmojis(naughtyStr, /❌/g);
+
+        rows.push({
+          name,
+          raw: currentMode === "stars" ? starsStr : naughtyStr,
+          total: currentMode === "stars" ? starsTotal : naughtyTotal
+        });
+      });
+
+      rows.sort((a,b) => b.total - a.total);
+
+      rows.forEach((r, idx) => {
+        let rank = idx + 1;
+        if (currentMode === "stars"){
+          if (idx === 0) rank = "🥇";
+          else if (idx === 1) rank = "🥈";
+          else if (idx === 2) rank = "🥉";
+        } else {
+          if (idx === 0) rank = "☠️";
+          else if (idx === 1) rank = "💀";
+          else if (idx === 2) rank = "🦴";
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${rank}</td>
+          <td>${r.name}</td>
+          <td class="points">${r.raw || ""}</td>
+          <td>${r.total}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (rows.length === 0){
+        tbody.innerHTML = `<tr><td class="empty" colspan="4">No data</td></tr>`;
+      }
+    }
+
+    function renderNotices(){
+      noticeList.innerHTML = "";
+
+      if (currentMode === "stars"){
+        noticeTitle.textContent = "Notices";
+        dataRows.forEach((row) => {
+          const notice = row.c[3]?.v || "";
+          if (notice.trim()){
+            const div = document.createElement("div");
+            div.className = "notice-item";
+            div.textContent = "• " + notice;
+            noticeList.appendChild(div);
+          }
+        });
+      } else {
+        noticeTitle.textContent = "Reasons";
+        dataRows.forEach((row) => {
+          const reason = row.c[4]?.v || "";
+          if (reason.trim()){
+            const div = document.createElement("div");
+            div.className = "notice-item";
+            div.textContent = "• " + reason;
+            noticeList.appendChild(div);
+          }
+        });
+      }
+
+      if (!noticeList.innerHTML.trim()){
+        noticeList.textContent = "No entries";
+      }
+    }
+
+    function applyModeUI(){
+      if (currentMode === "stars"){
+        document.body.classList.remove("naughty");
+        modeLabel.textContent = "Stars";
+        modeBadge.textContent = "🌟 Stars Ranking";
+        pointsHeader.textContent = "Stars";
+        knob.textContent = "🌟";
+      } else {
+        document.body.classList.add("naughty");
+        modeLabel.textContent = "Naughty";
+        modeBadge.textContent = "❌ Naughty Ranking";
+        pointsHeader.textContent = "Naughty";
+        knob.textContent = "❌";
+      }
+    }
+
+    function saveCache(){
+      try {
+        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
+      } catch(e){}
+    }
+
+    function loadCache(){
+      try {
+        const raw = localStorage.getItem("stars_trial_cache_v2");
+        if (!raw) return false;
+        dataRows = JSON.parse(raw);
+        return Array.isArray(dataRows);
+      } catch(e){ return false; }
+    }
+
+    /***** FETCHERS *****/
+    function fetchMainData(){
+      return fetch(mainURL)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.substr(47).slice(0, -2));
+          const rows = json.table.rows || [];
+          dataRows = rows;
+
+          // Extract sit names (I) and password (W from first row)
+          sitNames = rows.map(r => (r.c[5]?.v || "").toString().trim()).filter(Boolean);
+          sheetPassword = (rows[0] && rows[0].c[6] && rows[0].c[6].v) ? rows[0].c[6].v.toString() : "";
+
+          saveCache();
+          renderTable();
+          renderNotices();
+          renderSitPlan(); // render with current sitNames
+        })
+        .catch(() => {
+          if (loadCache()){
+            renderTable();
+            renderNotices();
+          } else {
+            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+            noticeList.textContent = "Offline & no saved data";
+          }
+        });
+    }
+
+    function fetchMaterials(){
+      materialsSection.textContent = "Loading…";
+      return fetch(materialsURL)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.substr(47).slice(0, -2));
+          const rows = json.table.rows || [];
+          studyMaterials = {};
+          rows.forEach(r => {
+            const subj = (r.c[0]?.v || "").toString().trim();
+            const chap = (r.c[1]?.v || "").toString().trim();
+            const url  = (r.c[2]?.v || "").toString().trim();
+            if (!subj || !chap || !url) return;
+            if (!studyMaterials[subj]) studyMaterials[subj] = [];
+            studyMaterials[subj].push({ chapter: chap, url });
+          });
+          renderMaterials();
+        })
+        .catch(() => {
+          materialsSection.textContent = "Offline or no materials yet.";
+        });
+    }
+
+    /***** RENDER MATERIALS & SIT PLAN *****/
+    function renderMaterials(){
+      // collapsed list per subject, showing chapter names as links
+      if (!Object.keys(studyMaterials).length){
+        materialsSection.textContent = "No materials yet.";
+        return;
+      }
+      materialsSection.innerHTML = "";
+      Object.keys(studyMaterials).sort().forEach(subj => {
+        const wrap = document.createElement("div");
+        wrap.className = "menu-item";
+        const title = document.createElement("div");
+        title.style.fontWeight = "700";
+        title.style.marginTop = "8px";
+        title.textContent = subj;
+        wrap.appendChild(title);
+
+        studyMaterials[subj].forEach(item => {
+          const a = document.createElement("a");
+          a.href = item.url;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = "• " + item.chapter;
+          a.className = "menu-item";
+          a.style.display = "block";
+          a.style.textDecoration = "none";
+          a.style.marginLeft = "6px";
+          a.style.padding = "2px 0";
+          wrap.appendChild(a);
+        });
+
+        materialsSection.appendChild(wrap);
+      });
+    }
+
+    function renderSitPlan(list = sitNames){
+      if (!list || !list.length){
+        sitPlanSection.textContent = "No names in column I yet.";
+        return;
+      }
+      sitPlanSection.innerHTML = "";
+      const ol = document.createElement("ol");
+      ol.style.paddingInlineStart = "22px";
+      list.forEach(n => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        ol.appendChild(li);
+      });
+      sitPlanSection.appendChild(ol);
+    }
+
+    function shuffleArray(arr){
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    /***** MENU OPEN/CLOSE (locks bg scroll) *****/
+    function openMenu() {
+      sideMenu.classList.add("open");
+      overlay.classList.add("show");
+      sideMenu.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+    function closeMenu() {
+      sideMenu.classList.remove("open");
+      overlay.classList.remove("show");
+      sideMenu.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    /***** COLLAPSERS *****/
+    function toggleSection(elem){
+      elem.classList.toggle("show");
+    }
+
+    /***** HIDDEN TEACHER LOGIN (triple tap title) *****/
+    (function setupTripleTap(){
+      let taps = 0, timer = null;
+      titleTap.addEventListener("click", () => {
+        taps++;
+        if (taps === 1){
+          timer = setTimeout(() => { taps = 0; }, 600);
+        }
+        if (taps === 3){
+          clearTimeout(timer);
+          taps = 0;
+          const pwd = prompt("Enter teacher password:");
+          if (pwd !== null){
+            if (pwd === sheetPassword){
+              setTeacherMode(true);
+              alert("Teacher mode enabled");
+            } else {
+              alert("Wrong password");
+            }
+          }
+        }
+      });
+    })();
+
+    /***** EVENTS *****/
+    modeToggle.addEventListener("change", () => {
+      currentMode = modeToggle.checked ? "naughty" : "stars";
+      applyModeUI();
+      renderTable();
+      renderNotices();
     });
 
-    /* ---- Sit Plan ---- */
-    const sitDiv=document.getElementById("sitPlanSection");
-    function showSitPlan(){sitDiv.innerHTML="";sitNames.forEach((n,i)=>{const d=document.createElement("div");d.textContent=(i+1)+". "+n;sitDiv.appendChild(d);});}
-    function shuffle(){for(let i=sitNames.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sitNames[i],sitNames[j]]=[sitNames[j],sitNames[i]];}showSitPlan();}
-    showSitPlan();
+    materialsHeader.addEventListener("click", () => toggleSection(materialsSection));
+    sitPlanHeader.addEventListener("click", () => toggleSection(sitPlanSection));
 
-    /* ---- Teacher Hidden Tap ---- */
-    let taps=0,timer;
-    document.getElementById("titleTap").addEventListener("click",()=>{
-      taps++;clearTimeout(timer);timer=setTimeout(()=>taps=0,600);
-      if(taps===3){const pass=prompt("Enter password:");if(pass===teacherPassword){
-        const btn=document.createElement("button");btn.textContent="🔄 Shuffle Seats";btn.onclick=shuffle;
-        sitDiv.appendChild(btn);}}});
+    menuBtn.addEventListener("click", openMenu);
+    overlay.addEventListener("click", closeMenu);
+
+    shuffleBtn.addEventListener("click", () => {
+      if (!teacherMode){
+        alert("Teacher mode only (triple-tap the title and enter password).");
+        return;
+      }
+      const shuffled = shuffleArray(sitNames);
+      renderSitPlan(shuffled);
+    });
+
+    logoutTeacher.addEventListener("click", () => {
+      setTeacherMode(false);
+      alert("Teacher mode disabled");
+    });
+
+    /***** INIT *****/
+    function initUI(){
+      applyModeUI();
+      setTeacherMode(teacherMode); // restores teacher mode if previously on
+      materialsSection.classList.remove("show"); // collapsed by default
+      sitPlanSection.classList.remove("show");  // collapsed by default
+    }
+
+    function fetchAll(){
+      // First fetch main (so password is ready), then materials
+      return fetchMainData().then(fetchMaterials);
+    }
+
+    initUI();
+    fetchAll();
+
+    // PWA registration + update banner
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+      });
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        const banner = document.getElementById("updateBanner");
+        banner.classList.add("show");
+        setTimeout(() => banner.classList.remove("show"), 4000);
+      });
+    }
   </script>
+
+  <footer>Made by Piu</footer>
 </body>
-  </html>
+</html>
