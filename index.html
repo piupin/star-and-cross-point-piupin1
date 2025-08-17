@@ -27,7 +27,7 @@
     }
 
     *{box-sizing:border-box}
-    html, body { height:100%; }
+    html, body { height: 100%; }
     body{
       margin:0;
       background:var(--bg);
@@ -39,12 +39,6 @@
       gap:10px;
       padding:12px;
       transition:background .25s ease, color .25s ease;
-      overscroll-behavior-y: none;
-    }
-    /* lock background scroll when menu is open */
-    body.menu-open{
-      overflow:hidden;
-      touch-action:none;
     }
 
     .topbar{
@@ -65,8 +59,7 @@
       font-size:1.6rem;
       color:#ff5722;
       transition:color .25s ease;
-      user-select:none;
-      cursor:pointer; /* triple-tap login */
+      cursor:pointer;
     }
     body.naughty h1{ color:#ff3b3b; }
 
@@ -133,14 +126,61 @@
       font-size:1.1rem;
       color:#d32f2f;
     }
-    body.naughty .notice-wrap h2{
-      color:#ff6666;
+    body.naughty .notice-wrap h2{ color:#ff6666; }
+    .notice-item{ margin:4px 0; font-size:.95rem; line-height:1.3; }
+
+    /* 3-dot menu button */
+    .menu-btn {
+      font-size: 22px;
+      background:none;
+      border:none;
+      cursor:pointer;
+      color:var(--text);
+      line-height:1;
+      padding:6px 10px;
     }
-    .notice-item{
-      margin:4px 0;
-      font-size:.95rem;
-      line-height:1.3;
+
+    /* Overlay + Side Menu (75% width) */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      display: none;
+      z-index: 100;
     }
+    .menu-overlay.show { display: block; }
+
+    .side-menu {
+      position: fixed;
+      top: 0; right: -75%;
+      width: 75%;
+      height: 100%;
+      background: var(--card);
+      box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+      transition: right 0.3s ease;
+      z-index: 101;
+      overflow-y: auto;
+      padding: 16px;
+      overscroll-behavior: contain; /* keep scroll inside */
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
+    .side-menu.open { right: 0; }
+
+    .menu-hdr {
+      display:flex; align-items:center; justify-content:space-between;
+      font-weight:700; font-size:1.05rem; margin-bottom:8px;
+    }
+    .menu-item { font-weight: bold; margin: 12px 0; cursor: pointer; }
+    .submenu { display: none; margin-left: 10px; }
+    .submenu.show { display:block; }
+    .submenu a {
+      display:block; margin:6px 0; color:#0077cc; text-decoration:none;
+      word-break: break-word;
+    }
+
+    .muted { color:#888; font-size:.85rem; margin-top:10px; }
 
     /* Update banner */
     .update-banner {
@@ -163,136 +203,6 @@
       from { opacity: 0; transform: translate(-50%, 20px); }
       to { opacity: 1; transform: translate(-50%, 0); }
     }
-
-    /* ⋮ button */
-    .more-btn{
-      border:none;
-      background:transparent;
-      font-size:22px;
-      line-height:1;
-      cursor:pointer;
-      padding:8px;
-      border-radius:10px;
-    }
-    .more-btn:active{ transform:scale(.96); }
-
-    /* Overlay blur */
-    .overlay{
-      position:fixed; inset:0; display:none;
-      backdrop-filter: blur(6px);
-      background: rgba(0,0,0,.2);
-      z-index: 999;
-      overscroll-behavior: contain;
-    }
-    .overlay.show{ display:block; }
-
-    /* Right drawer */
-    .drawer{
-      position:fixed;
-      top:0; right:0;
-      height:100vh;
-      width:75vw; max-width:520px; min-width:300px;
-      background:var(--card);
-      box-shadow:-8px 0 20px rgba(0,0,0,.25);
-      transform: translateX(100%);
-      transition: transform .28s ease;
-      z-index: 1000;
-      display:flex; flex-direction:column;
-      will-change: transform;
-    }
-    .drawer.open{ transform: translateX(0%); }
-
-    .drawer-header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px; border-bottom:2px solid var(--border);
-      background:var(--head);
-      flex: 0 0 auto;
-    }
-    .drawer-title{ margin:0; font-size:1.05rem; }
-    .drawer-close{
-      border:none; background:transparent; font-size:22px; padding:6px 8px; cursor:pointer;
-    }
-
-    .drawer-content{
-      padding:10px 14px;
-      overflow:auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      flex: 1 1 auto;
-    }
-
-    /* Collapsible group */
-    .group{
-      border:2px solid var(--border);
-      border-radius:10px;
-      margin:10px 0;
-      overflow:hidden;
-      background:var(--card);
-    }
-    .group-header{
-      width:100%;
-      text-align:left;
-      background:rgba(0,0,0,.04);
-      border:none;
-      padding:10px 12px;
-      font-weight:700;
-      cursor:pointer;
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .group-header .chev{ font-size:18px; transition: transform .2s ease; }
-    .group-header[aria-expanded="true"] .chev{ transform: rotate(90deg); }
-    .group-body{ display:none; padding:10px 12px; }
-    .group-body.show{ display:block; }
-
-    /* Study list */
-    .subject-block{ margin-bottom:10px; }
-    .subject-title{ font-weight:700; margin:8px 0 6px; }
-    .chapter-link{
-      display:block; padding:6px 8px; text-decoration:none;
-      color:var(--text); border-radius:8px;
-    }
-    .chapter-link:hover{ background:var(--hover); }
-
-    /* Sit plan list */
-    .plan-list{ list-style:none; padding:0; margin:0; }
-    .plan-list li{
-      padding:6px 8px; border-bottom:1px dashed var(--border);
-    }
-    .teacher-actions{
-      display:none; gap:8px; margin-top:10px;
-    }
-    .teacher-actions button{
-      padding:8px 10px; border-radius:10px; border:2px solid var(--border);
-      background:var(--head); font-weight:700; cursor:pointer;
-    }
-    .teacher-actions button:active{ transform: scale(.98); }
-    .teacher-actions.show{ display:flex; }
-
-    /* tiny footer */
-    footer{ margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7; }
- /* === Fix: allow long names and emojis to wrap properly === */
-td.points {
-  white-space: normal;          /* enable wrapping across lines */
-  overflow-wrap: anywhere;      /* break long emoji sequences */
-  word-break: break-word;       /* fallback break */
-}
-
-th:nth-child(2), td:nth-child(2) {
-  width: auto !important;       /* let Name column expand as needed */
-}
-
-th:nth-child(3), td:nth-child(3) {
-  width: 1% !important;         /* shrink emoji column with wrap */
-}
-
-@media (max-width: 720px) {
-  th:nth-child(2), td:nth-child(2) {
-    width: 55% !important;      /* give more room to names on small screens */
-  }
-  th:nth-child(3), td:nth-child(3) {
-    width: auto !important;
-  }
-  }
   </style>
 </head>
 <body>
@@ -304,12 +214,8 @@ th:nth-child(3), td:nth-child(3) {
       </label>
       <span class="mode-label" id="modeLabel">Stars</span>
     </div>
-
-    <!-- Title (triple-tap for teacher login) -->
-    <h1 id="appTitle">Student Points</h1>
-
-    <!-- ⋮ menu button -->
-    <button class="more-btn" id="moreBtn" aria-label="Open menu">⋮</button>
+    <h1 id="titleTap">Student Points</h1>
+    <button class="menu-btn" aria-label="Open menu" onclick="openMenu()">⋮</button>
   </div>
 
   <div class="badge" id="modeBadge">🌟 Stars Ranking</div>
@@ -334,62 +240,43 @@ th:nth-child(3), td:nth-child(3) {
     <div id="noticeList">Loading…</div>
   </div>
 
+  <!-- Footer -->
+  <footer style="margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7;">
+    Made by Piu
+  </footer>
+
+  <!-- Overlay + Side Menu -->
+  <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+  <div class="side-menu" id="sideMenu" role="dialog" aria-label="Menu">
+    <div class="menu-hdr">
+      <div>Menu</div>
+      <button class="menu-btn" aria-label="Close menu" onclick="closeMenu()">✕</button>
+    </div>
+
+    <div class="menu-item" onclick="toggleSubmenu('materialsSub')">📘 Study Materials</div>
+    <div class="submenu" id="materialsSub">Loading…</div>
+
+    <div class="menu-item" onclick="toggleSubmenu('sitplanSub')">🪑 Sit Plan</div>
+    <div class="submenu" id="sitplanSub">Loading…</div>
+
+    <div class="muted">Tap the title “Student Points” 3× to enter teacher mode.</div>
+  </div>
+
   <!-- Update banner -->
   <div class="update-banner" id="updateBanner">
     ✅ App updated to latest version
   </div>
 
-  <!-- Overlay + Drawer -->
-  <div class="overlay" id="overlay"></div>
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawer-header">
-      <h3 class="drawer-title">Menu</h3>
-      <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
-    </div>
-    <div class="drawer-content">
-      <!-- Group 1: Study Materials -->
-      <div class="group" id="grpStudy">
-        <button class="group-header" data-target="studyBody" aria-expanded="false">
-          <span>📘 Study Materials</span>
-          <span class="chev">▶</span>
-        </button>
-        <div class="group-body" id="studyBody">
-          <div id="studyContainer">Loading…</div>
-        </div>
-      </div>
-
-      <!-- Group 2: Sit Plan -->
-      <div class="group" id="grpSit">
-        <button class="group-header" data-target="sitBody" aria-expanded="false">
-          <span>🪑 Sit Plan</span>
-          <span class="chev">▶</span>
-        </button>
-        <div class="group-body" id="sitBody">
-          <ol class="plan-list" id="sitList"><li>Loading…</li></ol>
-          <div class="teacher-actions" id="teacherActions">
-            <button id="shuffleBtn">Shuffle & Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
   <script>
-    /* ====== SHEETS CONFIG ====== */
-    // Main sheet (table + notices/reasons + sit plan names + password W1)
-    const MAIN_SHEET_ID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
-    const MAIN_SHEET_NAME = "Sheet1";
-    // A,B,F,M,P,I,W  -> indices 0..6   (I is index 5, W is index 6)
-    const MAIN_QUERY = encodeURIComponent("SELECT A,B,F,M,P,I,W");
-    const MAIN_URL = `https://docs.google.com/spreadsheets/d/${MAIN_SHEET_ID}/gviz/tq?sheet=${MAIN_SHEET_NAME}&tq=${MAIN_QUERY}`;
+    /* ==========================
+       Main sheet (points + password + sit names)
+    =========================== */
+    const sheetID   = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk"; // main sheet
+    const sheetName = "Sheet1";
+    // A,B,F,M,P,W,I  -> indices: 0..6
+    const query     = encodeURIComponent("SELECT A,B,F,M,P,W,I");
+    const baseURL   = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
-    // Study materials sheet (Subject=A, Chapter=B, Link=C)
-    const STUDY_SHEET_ID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg";
-    const STUDY_SHEET_NAME = "Sheet1";
-    const STUDY_QUERY = encodeURIComponent("SELECT A,B,C");
-    const STUDY_URL = `https://docs.google.com/spreadsheets/d/${STUDY_SHEET_ID}/gviz/tq?sheet=${STUDY_SHEET_NAME}&tq=${STUDY_QUERY}`;
-
-    /* ====== DOM ====== */
     const tbody = document.querySelector("#studentTable tbody");
     const modeToggle = document.querySelector("#modeToggle");
     const modeLabel  = document.querySelector("#modeLabel");
@@ -400,61 +287,18 @@ th:nth-child(3), td:nth-child(3) {
     const noticeTitle = document.getElementById("noticeTitle");
     const noticeList = document.getElementById("noticeList");
 
-    const appTitle = document.getElementById("appTitle");
-
-    const overlay = document.getElementById("overlay");
-    const drawer = document.getElementById("drawer");
-    const moreBtn = document.getElementById("moreBtn");
-    const drawerClose = document.getElementById("drawerClose");
-
-    const studyContainer = document.getElementById("studyContainer");
-    const sitList = document.getElementById("sitList");
-    const teacherActions = document.getElementById("teacherActions");
-    const shuffleBtn = document.getElementById("shuffleBtn");
-
-    /* ====== STATE ====== */
-    let dataRows = [];     // main table rows
+    let dataRows = [];
     let currentMode = "stars";
+    let teacherPassword = "";
     let teacherMode = false;
-    let sitNames = [];     // from column I
-    let sheetPassword = ""; // from W1
-    let lastTitleTapTimes = [];
+    let seatNames = [];
 
-    /* ====== HELPERS ====== */
     function countEmojis(str, emojiRegex){
       if (!str) return 0;
       const m = str.match(emojiRegex);
       return m ? m.length : 0;
     }
-    function openDrawer(){
-      drawer.classList.add("open");
-      drawer.setAttribute("aria-hidden","false");
-      overlay.classList.add("show");
-      document.body.classList.add("menu-open");
-    }
-    function closeDrawer(){
-      drawer.classList.remove("open");
-      drawer.setAttribute("aria-hidden","true");
-      overlay.classList.remove("show");
-      document.body.classList.remove("menu-open");
-    }
-    function toggleGroup(btn){
-      const targetId = btn.getAttribute("data-target");
-      const body = document.getElementById(targetId);
-      const expanded = btn.getAttribute("aria-expanded")==="true";
-      btn.setAttribute("aria-expanded", String(!expanded));
-      body.classList.toggle("show", !expanded);
-    }
-    function shuffleArray(arr){
-      const a = arr.slice();
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
-    }
 
-    /* ====== TABLE RENDER ====== */
     function renderTable(){
       tbody.innerHTML = "";
       const rows = [];
@@ -512,7 +356,7 @@ th:nth-child(3), td:nth-child(3) {
         noticeTitle.textContent = "Notices";
         dataRows.forEach((row) => {
           const notice = row.c[3]?.v || "";
-          if (notice.trim()){
+          if (notice?.trim()){
             const div = document.createElement("div");
             div.className = "notice-item";
             div.textContent = "• " + notice;
@@ -523,7 +367,7 @@ th:nth-child(3), td:nth-child(3) {
         noticeTitle.textContent = "Reasons";
         dataRows.forEach((row) => {
           const reason = row.c[4]?.v || "";
-          if (reason.trim()){
+          if (reason?.trim()){
             const div = document.createElement("div");
             div.className = "notice-item";
             div.textContent = "• " + reason;
@@ -553,178 +397,29 @@ th:nth-child(3), td:nth-child(3) {
       }
     }
 
-    /* ====== CACHE main table ====== */
-    function saveMainCache(){
-      try {
-        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
-      } catch(e){}
-    }
-    function loadMainCache(){
-      try {
-        const raw = localStorage.getItem("stars_trial_cache_v2");
-        if (!raw) return false;
-        dataRows = JSON.parse(raw);
-        return Array.isArray(dataRows);
-      } catch(e){ return false; }
-    }
-
-    /* ====== FETCH main (incl. sit names + password) ====== */
-    function deriveSitAndPassFromRows(rows){
-      // I column (index 5), W (index 6)
-      sitNames = rows.map(r => (r.c?.[5]?.v || "").trim()).filter(Boolean);
-      sheetPassword = (rows?.[0]?.c?.[6]?.v || "").toString();
-    }
-
-    function fetchMain(){
-      return fetch(MAIN_URL)
+    function fetchData(){
+      fetch(baseURL)
         .then(res => res.text())
         .then(text => {
           const json = JSON.parse(text.substr(47).slice(0, -2));
-          const rows = json.table.rows || [];
-          dataRows = rows;
-          saveMainCache();
-          deriveSitAndPassFromRows(rows);
+          dataRows = json.table.rows || [];
+
+          teacherPassword = (dataRows[0]?.c[5]?.v || "").toString(); // W1
+          seatNames = dataRows.map(r => r.c[6]?.v).filter(Boolean);   // I column list
+
           renderTable();
           renderNotices();
+          // Prepare Sit Plan UI containers if already open
+          if (document.getElementById("sitplanSub").classList.contains("show")) {
+            renderSitPlanSection();
+          }
         })
         .catch(() => {
-          if (loadMainCache()){
-            deriveSitAndPassFromRows(dataRows);
-            renderTable();
-            renderNotices();
-          } else {
-            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
-            noticeList.textContent = "Offline & no saved data";
-          }
+          tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
+          noticeList.textContent = "Offline & no saved data";
         });
     }
 
-        /* ====== STUDY MATERIALS ====== */
-    function saveStudyCache(payload){
-      try { localStorage.setItem("study_cache_v1", JSON.stringify(payload)); } catch(e){}
-    }
-    function loadStudyCache(){
-      try {
-        const raw = localStorage.getItem("study_cache_v1");
-        if (!raw) return null;
-        return JSON.parse(raw);
-      } catch(e){ return null; }
-    }
-    function renderStudy(subjectMap){
-      // subjectMap: { subject: [{chapter, link}, ...], ... }
-      studyContainer.innerHTML = "";
-      const subjects = Object.keys(subjectMap).sort();
-      if (subjects.length === 0){
-        studyContainer.textContent = "No study materials";
-        return;
-      }
-      subjects.forEach(sub => {
-        const block = document.createElement("div");
-        block.className = "subject-block";
-        const title = document.createElement("div");
-        title.className = "subject-title";
-        title.textContent = sub;
-        block.appendChild(title);
-
-        subjectMap[sub].forEach(item => {
-          const a = document.createElement("a");
-          a.className = "chapter-link";
-          a.textContent = item.chapter || "(Untitled)";
-          if (item.link) {
-            a.href = item.link;
-            a.target = "_blank";
-            a.rel = "noopener";
-          } else {
-            a.href = "javascript:void(0)";
-          }
-          block.appendChild(a);
-        });
-
-        studyContainer.appendChild(block);
-      });
-    }
-    function fetchStudy(){
-      return fetch(STUDY_URL)
-        .then(res => res.text())
-        .then(text => {
-          const json = JSON.parse(text.substr(47).slice(0, -2));
-          const rows = json.table.rows || [];
-          // Build subject -> [{chapter, link}]
-          const subjectMap = {};
-          rows.forEach(r => {
-            const subject = (r.c?.[0]?.v || "").toString().trim();
-            const chapter = (r.c?.[1]?.v || "").toString().trim();
-            const link    = (r.c?.[2]?.v || "").toString().trim();
-            if (!subject || !chapter) return;
-            if (!subjectMap[subject]) subjectMap[subject] = [];
-            subjectMap[subject].push({ chapter, link });
-          });
-          saveStudyCache(subjectMap);
-          renderStudy(subjectMap);
-        })
-        .catch(() => {
-          const cached = loadStudyCache();
-          if (cached) renderStudy(cached);
-          else studyContainer.textContent = "Offline & no saved study materials";
-        });
-    }
-
-    /* ====== SIT PLAN ====== */
-    function loadSavedPlan(){
-      try {
-        const raw = localStorage.getItem("sit_plan_v1");
-        if (!raw) return null;
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr : null;
-      } catch(e){ return null; }
-    }
-    function savePlan(list){
-      try { localStorage.setItem("sit_plan_v1", JSON.stringify(list)); } catch(e){}
-    }
-    function renderSitPlan(list){
-      sitList.innerHTML = "";
-      if (!list || list.length === 0){
-        sitList.innerHTML = "<li>No names</li>";
-        return;
-      }
-      list.forEach((name, idx) => {
-        const li = document.createElement("li");
-        li.textContent = (idx+1) + ". " + name;
-        sitList.appendChild(li);
-      });
-    }
-    function initSitPlanView(){
-      const saved = loadSavedPlan();
-      if (saved && saved.length) {
-        renderSitPlan(saved);
-      } else {
-        renderSitPlan(sitNames);
-      }
-      teacherActions.classList.toggle("show", teacherMode);
-    }
-
-    /* ====== HIDDEN TEACHER LOGIN (triple tap title) ====== */
-    function handleTitleTap(){
-      const now = Date.now();
-      lastTitleTapTimes = lastTitleTapTimes.filter(t => now - t < 600);
-      lastTitleTapTimes.push(now);
-      if (lastTitleTapTimes.length >= 3){
-        lastTitleTapTimes = [];
-        const input = prompt("Enter teacher password:");
-        if (input !== null){
-          if (input.toString() === sheetPassword){
-            teacherMode = true;
-            alert("Teacher mode enabled");
-            teacherActions.classList.add("show");
-          } else {
-            alert("Wrong password");
-          }
-        }
-      }
-    }
-
-    /* ====== EVENTS ====== */
-    // topbar switch
     modeToggle.addEventListener("change", () => {
       currentMode = modeToggle.checked ? "naughty" : "stars";
       applyModeUI();
@@ -732,62 +427,232 @@ th:nth-child(3), td:nth-child(3) {
       renderNotices();
     });
 
-    // drawer open/close
-    moreBtn.addEventListener("click", openDrawer);
-    drawerClose.addEventListener("click", closeDrawer);
-    overlay.addEventListener("click", closeDrawer);
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeDrawer();
-    });
-    // prevent touch scrolling the background on iOS when overlay is shown
-    overlay.addEventListener("touchmove", (e) => e.preventDefault(), { passive:false });
-
-    // collapsibles (kept collapsed by default)
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest(".group-header");
-      if (btn) toggleGroup(btn);
-    });
-
-    // title triple-tap
-    appTitle.addEventListener("click", handleTitleTap);
-
-    // shuffle (teachers only)
-    shuffleBtn.addEventListener("click", () => {
-      if (!teacherMode){ alert("Teacher mode only"); return; }
-      const source = sitNames && sitNames.length ? sitNames : [];
-      if (source.length === 0){ alert("No names found"); return; }
-      const shuffled = shuffleArray(source);
-      savePlan(shuffled);
-      renderSitPlan(shuffled);
-    });
-
-    /* ====== INIT ====== */
     applyModeUI();
-    Promise.all([fetchMain(), fetchStudy()]).then(() => {
-      initSitPlanView();
+    fetchData();
+
+    /* ==========================
+       Hidden teacher login (3 taps on title)
+    =========================== */
+    (function setupTeacherLogin(){
+      const title = document.getElementById("titleTap");
+      let taps = 0;
+      let timer;
+      title.addEventListener("click", () => {
+        taps++;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (taps >= 3) {
+            const pwd = prompt("Enter teacher password:");
+            if (pwd !== null) {
+              if ((pwd.trim() || "") === (teacherPassword || "").toString().trim()) {
+                teacherMode = true;
+                alert("Teacher mode unlocked");
+                renderSitPlanSection();
+              } else {
+                alert("Wrong password");
+              }
+            }
+          }
+          taps = 0;
+        }, 600);
+      });
+    })();
+
+    /* ==========================
+       Side Menu controls
+    =========================== */
+    function openMenu() {
+      document.getElementById("sideMenu").classList.add("open");
+      document.getElementById("menuOverlay").classList.add("show");
+      // lock background scroll
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    }
+    function closeMenu() {
+      document.getElementById("sideMenu").classList.remove("open");
+      document.getElementById("menuOverlay").classList.remove("show");
+      // restore scroll
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape") closeMenu();
     });
 
-    /* ====== SERVICE WORKER HOOKS ====== */
+    function toggleSubmenu(id){
+      const el = document.getElementById(id);
+      el.classList.toggle("show");
+      if (id === "materialsSub" && el.classList.contains("show")) {
+        if (!el.dataset.loaded) {
+          loadMaterials();
+        }
+      }
+      if (id === "sitplanSub" && el.classList.contains("show")) {
+        renderSitPlanSection();
+      }
+    }
+
+    /* ==========================
+       Study Materials (2nd sheet)
+    =========================== */
+    const materialsSheetID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg";
+    const materialsQuery   = encodeURIComponent("SELECT A,B,C");
+    const materialsURL     = `https://docs.google.com/spreadsheets/d/${materialsSheetID}/gviz/tq?sheet=Sheet1&tq=${materialsQuery}`;
+
+    function loadMaterials(){
+      const materialsDiv = document.getElementById("materialsSub");
+      materialsDiv.textContent = "Loading…";
+      fetch(materialsURL)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.substr(47).slice(0, -2));
+          const rows = json.table.rows || [];
+
+          materialsDiv.innerHTML = "";
+          const subjects = {};
+          rows.forEach(r=>{
+            const subj = r.c[0]?.v || "";
+            const chap = r.c[1]?.v || "";
+            const link = r.c[2]?.v || "";
+            if(!subj || !chap || !link) return;
+            if(!subjects[subj]) subjects[subj]=[];
+            subjects[subj].push({chap,link});
+          });
+
+          Object.keys(subjects).forEach(subj=>{
+            const h = document.createElement("div");
+            h.style.marginTop="8px"; h.style.fontWeight="bold";
+            h.textContent = subj;
+            materialsDiv.appendChild(h);
+            subjects[subj].forEach(item=>{
+              const a = document.createElement("a");
+              a.textContent=item.chap;
+              a.href=item.link;
+              a.target="_blank";
+              a.rel="noopener";
+              materialsDiv.appendChild(a);
+            });
+          });
+
+          if (!materialsDiv.innerHTML.trim()){
+            materialsDiv.textContent = "No materials yet.";
+          }
+          materialsDiv.dataset.loaded = "1";
+          // cache for offline view next time
+          try { localStorage.setItem("materials_cache_v1", JSON.stringify(subjects)); } catch(e){}
+        })
+        .catch(()=>{
+          // try cache
+          try {
+            const cache = JSON.parse(localStorage.getItem("materials_cache_v1")||"{}");
+            const materialsDiv2 = document.getElementById("materialsSub");
+            materialsDiv2.innerHTML = "";
+            Object.keys(cache).forEach(subj=>{
+              const h = document.createElement("div");
+              h.style.marginTop="8px"; h.style.fontWeight="bold";
+              h.textContent = subj;
+              materialsDiv2.appendChild(h);
+              cache[subj].forEach(item=>{
+                const a = document.createElement("a");
+                a.textContent=item.chap;
+                a.href=item.link;
+                a.target="_blank";
+                a.rel="noopener";
+                materialsDiv2.appendChild(a);
+              });
+            });
+            if (!materialsDiv2.innerHTML.trim()){
+              materialsDiv2.textContent = "Offline & no saved materials";
+            }
+            materialsDiv2.dataset.loaded = "1";
+          } catch(e) {
+            materialsDiv.textContent = "Failed to load";
+          }
+        });
+    }
+
+    /* ==========================
+       Sit Plan (deterministic per day)
+    =========================== */
+    function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return (h^=h>>>16)>>>0;};}
+    function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
+    function shuffleWithSeed(arr, seedStr){
+      const seed = xmur3(seedStr)();
+      const rand = mulberry32(seed);
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(rand()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+    function todaySeed(){
+      const d = new Date();
+      const day = d.toISOString().slice(0,10); // YYYY-MM-DD
+      return day + "|" + (teacherPassword||"");
+    }
+
+    function renderSitPlanSection(){
+      const sub = document.getElementById("sitplanSub");
+      sub.innerHTML = "";
+      const listWrap = document.createElement("div");
+      listWrap.style.marginTop = "6px";
+
+            // Button only for teacher
+      if (teacherMode) {
+        const btn = document.createElement("button");
+        btn.textContent = "🔀 Generate Today’s Plan";
+        btn.style.margin="6px 0 10px";
+        btn.style.padding="8px 12px";
+        btn.style.border="1px solid #ccc";
+        btn.style.borderRadius="8px";
+        btn.style.background="#fff";
+        btn.style.cursor="pointer";
+        btn.onclick = () => {
+          // Re-render (deterministic for the day)
+          renderSitPlanSection();
+        };
+        sub.appendChild(btn);
+      }
+
+      // compute plan
+      const names = (seatNames && seatNames.length) ? seatNames : [];
+      if (!names.length){
+        listWrap.textContent = "No names found for sit plan (column I).";
+        sub.appendChild(listWrap);
+        return;
+      }
+      const plan = shuffleWithSeed(names, todaySeed());
+      const ol = document.createElement("ol");
+      plan.forEach(n => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        ol.appendChild(li);
+      });
+      listWrap.appendChild(ol);
+      sub.appendChild(listWrap);
+    }
+
+    /* ==========================
+       PWA update banner hook
+    =========================== */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
       });
+      // reload trigger from SW
+      navigator.serviceWorker.addEventListener("message", (e) => {
+        if (e.data && e.data.action === "reload") {
+          window.location.reload();
+        }
+      });
+      // visual banner when controller changes
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         const banner = document.getElementById("updateBanner");
         banner.classList.add("show");
         setTimeout(() => banner.classList.remove("show"), 4000);
       });
-      // listen for SW "reload" message
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data && event.data.action === "reload") {
-          window.location.reload();
-        }
-      });
     }
   </script>
-
-  <footer>Made by Piu</footer>
 </body>
 </html>
-
-
