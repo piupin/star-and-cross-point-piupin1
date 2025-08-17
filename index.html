@@ -25,724 +25,185 @@
       --hover:#1a0000;
       --shadow:0 6px 14px rgba(255,0,0,.15);
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
       background:var(--bg);
       color:var(--text);
       font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-      padding:12px;
+      display:flex; flex-direction:column; align-items:center;
+      gap:10px; padding:12px;
       transition:background .25s ease, color .25s ease;
     }
-
     .topbar{
-      width:100%;
-      max-width:720px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      position:sticky;
-      top:0;
-      padding:8px 6px;
-      backdrop-filter:saturate(140%) blur(6px);
-      z-index:10;
+      width:100%; max-width:720px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; padding:8px 6px;
+      backdrop-filter:saturate(140%) blur(6px); z-index:10;
     }
-
     h1{
-      margin:0 0 6px 0;
-      font-size:1.6rem;
-      color:#ff5722;
-      transition:color .25s ease;
-      user-select:none;
-      cursor:pointer; /* for the hidden login triple-tap */
+      margin:0 0 6px 0; font-size:1.6rem; color:#ff5722;
+      cursor:pointer; transition:color .25s ease;
     }
     body.naughty h1{ color:#ff3b3b; }
-
     .switch-wrap{ display:flex; align-items:center; gap:8px; }
     .mode-label{ font-size:.95rem; user-select:none; }
     .switch{ position:relative; width:58px; height:30px; }
     .switch input{ display:none; }
-    .slider{
-      position:absolute; inset:0; background:#ffd54f; border-radius:999px;
-      box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
-      transition:background .25s ease;
-    }
-    .knob{
-      position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
+    .slider{ position:absolute; inset:0; background:#ffd54f; border-radius:999px;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.25); transition:background .25s ease;}
+    .knob{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
       background:#fff; display:flex; align-items:center; justify-content:center;
-      font-size:15px; transition:transform .25s ease;
-      box-shadow:0 2px 6px rgba(0,0,0,.25);
-    }
+      font-size:15px; transition:transform .25s ease; box-shadow:0 2px 6px rgba(0,0,0,.25);}
     input:checked + .slider{ background:#8b0000; }
     input:checked + .slider .knob{ transform:translateX(28px); }
-
-    .table-wrap{
-      width:100%; max-width:720px; background:var(--card);
-      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);
-    }
-    table{ width:100%; border-collapse:collapse; background:var(--card); }
-    thead th{
-      background:var(--head); color:#333; text-align:center;
-      padding:10px; font-weight:700;
-    }
-    tbody td{
-      border-top:2px solid var(--border);
-      padding:10px; font-size:16px; text-align:center;
-    }
+    .table-wrap{ width:100%; max-width:720px; background:var(--card);
+      border-radius:12px; overflow:hidden; box-shadow:var(--shadow);}
+    table{ width:100%; border-collapse:collapse; background:var(--card);}
+    thead th{ background:var(--head); color:#333; text-align:center; padding:10px; font-weight:700; }
+    tbody td{ border-top:2px solid var(--border); padding:10px; font-size:16px; text-align:center; }
     tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
     body.naughty tbody tr:nth-child(even){ background:#151515; }
     tbody tr:hover{ background:var(--hover); }
-
     th:nth-child(1), td:nth-child(1){ width:40px; }
     th:nth-child(2), td:nth-child(2){ width:32%; text-align:left; }
-    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px; }
+    th:nth-child(3), td:nth-child(3){ width:auto; text-align:left; word-break:break-word; font-size:20px;}
     th:nth-child(4), td:nth-child(4){ width:64px; }
-
-    .badge{
-      margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
+    .badge{ margin:6px 0 2px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem;
       background:#fff3cd; color:#795548; display:inline-flex; align-items:center; gap:6px;
-      box-shadow:0 2px 6px rgba(0,0,0,.1);
-    }
+      box-shadow:0 2px 6px rgba(0,0,0,.1);}
     body.naughty .badge{ background:#330000; color:#ffb3b3; }
-
     .empty{ padding:18px; text-align:center; opacity:.8; }
-
-    /* Notices / Reasons */
-    .notice-wrap{
-      width:100%; max-width:720px;
-      background:var(--card);
-      border-radius:10px;
-      box-shadow:var(--shadow);
-      margin-top:12px;
-      padding:10px 14px;
-    }
-    .notice-wrap h2{
-      margin:0 0 6px;
-      font-size:1.1rem;
-      color:#d32f2f;
-    }
-    body.naughty .notice-wrap h2{
-      color:#ff6666;
-    }
-    .notice-item{
-      margin:4px 0;
-      font-size:.95rem;
-      line-height:1.3;
-    }
-
-    /* Update banner */
-    .update-banner {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #4caf50;
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
-      animation: fadeIn 0.4s ease;
-    }
-    .update-banner.show { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, 20px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-
-    /* ⋮ button */
-    .more-btn{
-      border:none;
-      background:transparent;
-      font-size:22px;
-      line-height:1;
-      cursor:pointer;
-      padding:8px;
-      border-radius:10px;
-    }
-    .more-btn:active{ transform:scale(.96); }
-
-    /* Right slide drawer + overlay blur */
-    .overlay{
-      position:fixed; inset:0; display:none;
-      backdrop-filter: blur(6px);
-      background: rgba(0,0,0,.2);
-      z-index: 999;
-    }
-    .overlay.show{ display:block; }
-
-    .drawer{
-      position:fixed;
-      top:0; right:0;
-      height:100vh;
-      width:75vw; max-width:520px; min-width:300px;
-      background:var(--card);
-      box-shadow:-8px 0 20px rgba(0,0,0,.25);
-      transform: translateX(100%);
-      transition: transform .28s ease;
-      z-index: 1000;
-      display:flex; flex-direction:column;
-    }
-    .drawer.open{ transform: translateX(0%); }
-
-    .drawer-header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px; border-bottom:2px solid var(--border);
-      background:var(--head);
-    }
-    .drawer-title{ margin:0; font-size:1.05rem; }
-    .drawer-close{
-      border:none; background:transparent; font-size:22px; padding:6px 8px; cursor:pointer;
-    }
-
-    .drawer-content{
-      padding:10px 14px; overflow:auto;
-    }
-
-    /* Collapsible group */
-    .group{
-      border:2px solid var(--border);
-      border-radius:10px;
-      margin:10px 0;
-      overflow:hidden;
-      background:var(--card);
-    }
-    .group-header{
-      width:100%;
-      text-align:left;
-      background:rgba(0,0,0,.04);
-      border:none;
-      padding:10px 12px;
-      font-weight:700;
-      cursor:pointer;
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .group-header .chev{ font-size:18px; transition: transform .2s ease; }
-    .group-header[aria-expanded="true"] .chev{ transform: rotate(90deg); }
-    .group-body{ display:none; padding:10px 12px; }
-    .group-body.show{ display:block; }
-
-    /* Study list */
-    .subject-block{ margin-bottom:10px; }
-    .subject-title{ font-weight:700; margin:8px 0 6px; }
-    .chapter-link{
-      display:block; padding:6px 8px; text-decoration:none;
-      color:var(--text); border-radius:8px;
-    }
-    .chapter-link:hover{ background:var(--hover); }
-
-    /* Sit plan list */
-    .plan-list{ list-style:none; padding:0; margin:0; }
-    .plan-list li{
-      padding:6px 8px; border-bottom:1px dashed var(--border);
-    }
-    .teacher-actions{
-      display:none; gap:8px; margin-top:10px;
-    }
-    .teacher-actions button{
-      padding:8px 10px; border-radius:10px; border:2px solid var(--border);
-      background:var(--head); font-weight:700; cursor:pointer;
-    }
-    .teacher-actions button:active{ transform: scale(.98); }
-    .teacher-actions.show{ display:flex; }
-
-    /* tiny footer */
-    footer{ margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7; }
+    .notice-wrap{ width:100%; max-width:720px; background:var(--card);
+      border-radius:10px; box-shadow:var(--shadow); margin-top:12px; padding:10px 14px;}
+    .notice-wrap h2{ margin:0 0 6px; font-size:1.1rem; color:#d32f2f;}
+    body.naughty .notice-wrap h2{ color:#ff6666; }
+    .notice-item{ margin:4px 0; font-size:.95rem; line-height:1.3;}
+    .update-banner{ display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      background:#4caf50; color:#fff; padding:10px 18px; border-radius:8px; font-size:0.95rem;
+      box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; animation:fadeIn 0.4s ease;}
+    .update-banner.show{ display:block; }
+    @keyframes fadeIn{from{opacity:0; transform:translate(-50%,20px);} to{opacity:1; transform:translate(-50%,0);} }
+    /* Side menu */
+    .side-menu{ position:fixed; top:0; right:-75%; width:75%; height:100%; background:var(--card);
+      box-shadow:-4px 0 12px rgba(0,0,0,.3); z-index:2000; transition:right 0.3s ease;
+      overflow-y:auto; padding:16px;}
+    .side-menu.open{ right:0;}
+    .menu-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(4px);
+      display:none; z-index:1500;}
+    .menu-overlay.show{ display:block;}
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="switch-wrap">
       <label class="switch">
-        <input id="modeToggle" type="checkbox" aria-label="Toggle Naughty Mode">
+        <input id="modeToggle" type="checkbox">
         <div class="slider"><div class="knob">🌟</div></div>
       </label>
       <span class="mode-label" id="modeLabel">Stars</span>
     </div>
-
-    <!-- Title (triple-tap for teacher login) -->
-    <h1 id="appTitle">Student Points</h1>
-
-    <!-- ⋮ menu button -->
-    <button class="more-btn" id="moreBtn" aria-label="Open menu">⋮</button>
+    <h1 id="titleTap">Student Points</h1>
+    <button onclick="openMenu()">⋮</button>
   </div>
 
   <div class="badge" id="modeBadge">🌟 Stars Ranking</div>
+  <div class="table-wrap"><table id="studentTable">
+    <thead><tr><th>No.</th><th>Name</th><th id="pointsHeader">Stars</th><th>Total</th></tr></thead>
+    <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
+  </table></div>
 
-  <div class="table-wrap">
-    <table id="studentTable">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th>Name</th>
-          <th id="pointsHeader">Stars</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody><tr><td class="empty" colspan="4">Loading…</td></tr></tbody>
-    </table>
+  <div class="notice-wrap"><h2 id="noticeTitle">Notices</h2><div id="noticeList">Loading…</div></div>
+
+  <!-- Side Menu -->
+  <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+  <div id="sideMenu" class="side-menu">
+    <h3>Menu</h3>
+    <button onclick="toggleSection('materialsSection')">📘 Study Materials</button>
+    <div id="materialsSection" style="display:none;"></div>
+    <button onclick="toggleSection('sitPlanSection')">🪑 Sit Plan</button>
+    <div id="sitPlanSection" style="display:none;"></div>
   </div>
 
-  <!-- Notices/Reasons (kept exactly as before) -->
-  <div class="notice-wrap" id="noticeSection">
-    <h2 id="noticeTitle">Notices</h2>
-    <div id="noticeList">Loading…</div>
-  </div>
+  <div class="update-banner" id="updateBanner">✅ App updated</div>
 
-  <!-- Update banner -->
-  <div class="update-banner" id="updateBanner">
-    ✅ App updated to latest version
-  </div>
-
-  <!-- Overlay + Drawer -->
-  <div class="overlay" id="overlay"></div>
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawer-header">
-      <h3 class="drawer-title">Menu</h3>
-      <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
-    </div>
-    <div class="drawer-content">
-
-      <!-- Group 1: Study Materials -->
-      <div class="group" id="grpStudy">
-        <button class="group-header" data-target="studyBody" aria-expanded="false">
-          <span>📘 Study Materials</span>
-          <span class="chev">▶</span>
-        </button>
-        <div class="group-body" id="studyBody">
-          <div id="studyContainer">Loading…</div>
-        </div>
-      </div>
-
-      <!-- Group 2: Sit Plan -->
-      <div class="group" id="grpSit">
-        <button class="group-header" data-target="sitBody" aria-expanded="false">
-          <span>🪑 Sit Plan</span>
-          <span class="chev">▶</span>
-        </button>
-        <div class="group-body" id="sitBody">
-          <ol class="plan-list" id="sitList"><li>Loading…</li></ol>
-          <div class="teacher-actions" id="teacherActions">
-            <button id="shuffleBtn">Shuffle & Save</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </aside>
+  <footer style="margin-top:20px;font-size:0.8rem;color:#888;text-align:center;opacity:0.7;">
+    Made by Piu
+  </footer>
 
   <script>
-    /* ====== SHEETS CONFIG ====== */
-    // Main sheet (table + notices/reasons + sit plan names + password W1)
-    const MAIN_SHEET_ID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
-    const MAIN_SHEET_NAME = "Sheet1";
-    const MAIN_QUERY = encodeURIComponent("SELECT A,B,F,M,P,I,W");
-    const MAIN_URL = `https://docs.google.com/spreadsheets/d/${MAIN_SHEET_ID}/gviz/tq?sheet=${MAIN_SHEET_NAME}&tq=${MAIN_QUERY}`;
-
-    // Study materials sheet (Subject=A, Chapter=B, Link=C)
-    const STUDY_SHEET_ID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg";
-    const STUDY_SHEET_NAME = "Sheet1";
-    const STUDY_QUERY = encodeURIComponent("SELECT A,B,C");
-    const STUDY_URL = `https://docs.google.com/spreadsheets/d/${STUDY_SHEET_ID}/gviz/tq?sheet=${STUDY_SHEET_NAME}&tq=${STUDY_QUERY}`;
-
-    /* ====== DOM ====== */
-    const tbody = document.querySelector("#studentTable tbody");
-    const modeToggle = document.querySelector("#modeToggle");
-    const modeLabel  = document.querySelector("#modeLabel");
-    const modeBadge  = document.querySelector("#modeBadge");
-    const pointsHeader = document.querySelector("#pointsHeader");
-    const knob = document.querySelector(".knob");
-
-    const noticeTitle = document.getElementById("noticeTitle");
-    const noticeList = document.getElementById("noticeList");
-
-    const appTitle = document.getElementById("appTitle");
-
-    const overlay = document.getElementById("overlay");
-    const drawer = document.getElementById("drawer");
-    const moreBtn = document.getElementById("moreBtn");
-    const drawerClose = document.getElementById("drawerClose");
-
-    const studyBody = document.getElementById("studyBody");
-    const studyContainer = document.getElementById("studyContainer");
-    const sitBody = document.getElementById("sitBody");
-    const sitList = document.getElementById("sitList");
-    const teacherActions = document.getElementById("teacherActions");
-    const shuffleBtn = document.getElementById("shuffleBtn");
-
-    /* ====== STATE ====== */
-    let dataRows = [];     // main table rows
-    let currentMode = "stars";
-    let teacherMode = false;
-    let sitNames = [];     // from column I
-    let sheetPassword = ""; // from W1
-    let lastTitleTapTimes = [];
-
-    /* ====== HELPERS ====== */
-    function countEmojis(str, emojiRegex){
-      if (!str) return 0;
-      const m = str.match(emojiRegex);
-      return m ? m.length : 0;
+    /* ---- Student Points ---- */
+    const sheetID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk"; // main sheet
+    const query = encodeURIComponent("SELECT A,B,F,M,P,W,I");
+    const baseURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=Sheet1&tq=${query}`;
+    const tbody=document.querySelector("#studentTable tbody");
+    const modeToggle=document.querySelector("#modeToggle");
+    const modeLabel=document.querySelector("#modeLabel");
+    const modeBadge=document.querySelector("#modeBadge");
+    const pointsHeader=document.querySelector("#pointsHeader");
+    const knob=document.querySelector(".knob");
+    const noticeTitle=document.getElementById("noticeTitle");
+    const noticeList=document.getElementById("noticeList");
+    let dataRows=[],currentMode="stars",teacherPassword="",sitNames=[];
+    function countEmojis(str,re){return !str?0:(str.match(re)||[]).length;}
+    function renderTable(){tbody.innerHTML="";let rows=[];dataRows.forEach(r=>{
+      const name=r.c[0]?.v||"",starsStr=r.c[1]?.v||"",naughtyStr=r.c[2]?.v||"";
+      if(!name.trim())return;
+      rows.push({name,raw:currentMode==="stars"?starsStr:naughtyStr,
+                 total:currentMode==="stars"?countEmojis(starsStr,/🌟/g):countEmojis(naughtyStr,/❌/g)});});
+      rows.sort((a,b)=>b.total-a.total);
+      rows.forEach((r,i)=>{let rank=i+1;if(currentMode==="stars"){if(i===0)rank="🥇";else if(i===1)rank="🥈";else if(i===2)rank="🥉";}
+        else{if(i===0)rank="☠️";else if(i===1)rank="💀";else if(i===2)rank="🦴";}
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${rank}</td><td>${r.name}</td><td>${r.raw||""}</td><td>${r.total}</td>`;
+        tbody.appendChild(tr);});
+      if(!rows.length)tbody.innerHTML=`<tr><td colspan="4" class="empty">No data</td></tr>`;
     }
-    function openDrawer(){
-      drawer.classList.add("open");
-      drawer.setAttribute("aria-hidden","false");
-      overlay.classList.add("show");
-    }
-    function closeDrawer(){
-      drawer.classList.remove("open");
-      drawer.setAttribute("aria-hidden","true");
-      overlay.classList.remove("show");
-    }
-    function toggleGroup(btn){
-      const targetId = btn.getAttribute("data-target");
-      const body = document.getElementById(targetId);
-      const expanded = btn.getAttribute("aria-expanded")==="true";
-      btn.setAttribute("aria-expanded", String(!expanded));
-      body.classList.toggle("show", !expanded);
-    }
-    function shuffleArray(arr){
-      const a = arr.slice();
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
-    }
+    function renderNotices(){noticeList.innerHTML="";if(currentMode==="stars"){noticeTitle.textContent="Notices";dataRows.forEach(r=>{
+      const n=r.c[3]?.v||"";if(n.trim()){const d=document.createElement("div");d.className="notice-item";d.textContent="• "+n;noticeList.appendChild(d);}});}
+      else{noticeTitle.textContent="Reasons";dataRows.forEach(r=>{const n=r.c[4]?.v||"";if(n.trim()){const d=document.createElement("div");d.className="notice-item";d.textContent="• "+n;noticeList.appendChild(d);}});}
+      if(!noticeList.innerHTML.trim())noticeList.textContent="No entries";}
+    function applyModeUI(){if(currentMode==="stars"){document.body.classList.remove("naughty");modeLabel.textContent="Stars";modeBadge.textContent="🌟 Stars Ranking";pointsHeader.textContent="Stars";knob.textContent="🌟";}
+      else{document.body.classList.add("naughty");modeLabel.textContent="Naughty";modeBadge.textContent="❌ Naughty Ranking";pointsHeader.textContent="Naughty";knob.textContent="❌";}}
+    function fetchData(){fetch(baseURL).then(r=>r.text()).then(t=>{const j=JSON.parse(t.substr(47).slice(0,-2));dataRows=j.table.rows||[];
+      teacherPassword=dataRows[0]?.c[5]?.v||""; sitNames=dataRows.map(r=>r.c[6]?.v).filter(Boolean);
+      renderTable();renderNotices();});}
+    modeToggle.onchange=()=>{currentMode=modeToggle.checked?"naughty":"stars";applyModeUI();renderTable();renderNotices();}
+    applyModeUI();fetchData();
 
-    /* ====== TABLE RENDER (unchanged) ====== */
-    function renderTable(){
-      tbody.innerHTML = "";
-      const rows = [];
+    /* ---- Side Menu ---- */
+    function openMenu(){document.getElementById("sideMenu").classList.add("open");
+      document.getElementById("menuOverlay").classList.add("show");
+      document.body.style.overflow="hidden";}
+    function closeMenu(){document.getElementById("sideMenu").classList.remove("open");
+      document.getElementById("menuOverlay").classList.remove("show");
+      document.body.style.overflow="";}
+    function toggleSection(id){const el=document.getElementById(id);
+      el.style.display=el.style.display==="none"?"block":"none";}
 
-      dataRows.forEach((row) => {
-        const name = row.c[0]?.v || "";
-        const starsStr = row.c[1]?.v || "";
-        const naughtyStr = row.c[2]?.v || "";
-
-        if (!name.trim()) return;
-
-        const starsTotal   = countEmojis(starsStr, /🌟/g);
-        const naughtyTotal = countEmojis(naughtyStr, /❌/g);
-
-        rows.push({
-          name,
-          raw: currentMode === "stars" ? starsStr : naughtyStr,
-          total: currentMode === "stars" ? starsTotal : naughtyTotal
-        });
-      });
-
-      rows.sort((a,b) => b.total - a.total);
-
-      rows.forEach((r, idx) => {
-        let rank = idx + 1;
-        if (currentMode === "stars"){
-          if (idx === 0) rank = "🥇";
-          else if (idx === 1) rank = "🥈";
-          else if (idx === 2) rank = "🥉";
-        } else {
-          if (idx === 0) rank = "☠️";
-          else if (idx === 1) rank = "💀";
-          else if (idx === 2) rank = "🦴";
-        }
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${rank}</td>
-          <td>${r.name}</td>
-          <td class="points">${r.raw || ""}</td>
-          <td>${r.total}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      if (rows.length === 0){
-        tbody.innerHTML = `<tr><td class="empty" colspan="4">No data</td></tr>`;
-      }
-    }
-
-    function renderNotices(){
-      noticeList.innerHTML = "";
-
-      if (currentMode === "stars"){
-        noticeTitle.textContent = "Notices";
-        dataRows.forEach((row) => {
-          const notice = row.c[3]?.v || "";
-          if (notice.trim()){
-            const div = document.createElement("div");
-            div.className = "notice-item";
-            div.textContent = "• " + notice;
-            noticeList.appendChild(div);
-          }
-        });
-      } else {
-        noticeTitle.textContent = "Reasons";
-        dataRows.forEach((row) => {
-          const reason = row.c[4]?.v || "";
-          if (reason.trim()){
-            const div = document.createElement("div");
-            div.className = "notice-item";
-            div.textContent = "• " + reason;
-            noticeList.appendChild(div);
-          }
-        });
-      }
-
-      if (!noticeList.innerHTML.trim()){
-        noticeList.textContent = "No entries";
-      }
-    }
-
-    function applyModeUI(){
-      if (currentMode === "stars"){
-        document.body.classList.remove("naughty");
-        modeLabel.textContent = "Stars";
-        modeBadge.textContent = "🌟 Stars Ranking";
-        pointsHeader.textContent = "Stars";
-        knob.textContent = "🌟";
-      } else {
-        document.body.classList.add("naughty");
-        modeLabel.textContent = "Naughty";
-        modeBadge.textContent = "❌ Naughty Ranking";
-        pointsHeader.textContent = "Naughty";
-        knob.textContent = "❌";
-      }
-    }
-
-    /* ====== CACHE main table to localStorage (unchanged) ====== */
-    function saveMainCache(){
-      try {
-        localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
-      } catch(e){}
-    }
-    function loadMainCache(){
-      try {
-        const raw = localStorage.getItem("stars_trial_cache_v2");
-        if (!raw) return false;
-        dataRows = JSON.parse(raw);
-        return Array.isArray(dataRows);
-      } catch(e){ return false; }
-    }
-
-    /* ====== FETCH main (also get sit names + password) ====== */
-    function fetchMain(){
-      return fetch(MAIN_URL)
-        .then(res => res.text())
-        .then(text => {
-          const json = JSON.parse(text.substr(47).slice(0, -2));
-          const rows = json.table.rows || [];
-          dataRows = rows;
-          saveMainCache();
-          // Column I (index 8? No—our SELECT A,B,F,M,P,I,W ==> indices 0..6; I is at index 5)
-          sitNames = rows.map(r => (r.c[5]?.v || "").trim()).filter(Boolean);
-          // Password from W1 (index 6, first row)
-          sheetPassword = (rows[0]?.c[6]?.v || "").toString();
-          renderTable();
-          renderNotices();
-        })
-        .catch(() => {
-          // offline fallback for table
-          if (loadMainCache()){
-            renderTable();
-            renderNotices();
-          } else {
-            tbody.innerHTML = `<tr><td class="empty" colspan="4">Offline & no saved data</td></tr>`;
-            noticeList.textContent = "Offline & no saved data";
-          }
-        });
-    }
-
-    /* ====== STUDY MATERIALS ====== */
-    function saveStudyCache(payload){
-      try { localStorage.setItem("study_cache_v1", JSON.stringify(payload)); } catch(e){}
-    }
-    function loadStudyCache(){
-      try {
-        const raw = localStorage.getItem("study_cache_v1");
-        if (!raw) return null;
-        return JSON.parse(raw);
-      } catch(e){ return null; }
-    }
-    function renderStudy(subjectMap){
-      // subjectMap: { subject: [{chapter, link}, ...], ... }
-      studyContainer.innerHTML = "";
-      const subjects = Object.keys(subjectMap).sort();
-      if (subjects.length === 0){
-        studyContainer.textContent = "No study materials";
-        return;
-      }
-      subjects.forEach(sub => {
-        const block = document.createElement("div");
-        block.className = "subject-block";
-        const title = document.createElement("div");
-        title.className = "subject-title";
-        title.textContent = sub;
-        block.appendChild(title);
-
-        subjectMap[sub].forEach(item => {
-          const a = document.createElement("a");
-          a.className = "chapter-link";
-          a.textContent = item.chapter || "(Untitled)";
-          if (item.link) {
-            a.href = item.link;
-            a.target = "_blank";
-            a.rel = "noopener";
-          } else {
-            a.href = "javascript:void(0)";
-          }
-          block.appendChild(a);
-        });
-
-        studyContainer.appendChild(block);
-      });
-    }
-    function fetchStudy(){
-      return fetch(STUDY_URL)
-        .then(res => res.text())
-        .then(text => {
-          const json = JSON.parse(text.substr(47).slice(0, -2));
-          const rows = json.table.rows || [];
-          // Build subject -> [{chapter, link}]
-          const subjectMap = {};
-          rows.forEach(r => {
-            const subject = (r.c[0]?.v || "").toString().trim();
-            const chapter = (r.c[1]?.v || "").toString().trim();
-            const link    = (r.c[2]?.v || "").toString().trim();
-            if (!subject || !chapter) return;
-            if (!subjectMap[subject]) subjectMap[subject] = [];
-            subjectMap[subject].push({ chapter, link });
-          });
-          saveStudyCache(subjectMap);
-          renderStudy(subjectMap);
-        })
-        .catch(() => {
-          const cached = loadStudyCache();
-          if (cached) renderStudy(cached);
-          else studyContainer.textContent = "Offline & no saved study materials";
-        });
-    }
-
-    /* ====== SIT PLAN ====== */
-    function loadSavedPlan(){
-      try {
-        const raw = localStorage.getItem("sit_plan_v1");
-        if (!raw) return null;
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr : null;
-      } catch(e){ return null; }
-    }
-    function savePlan(list){
-      try { localStorage.setItem("sit_plan_v1", JSON.stringify(list)); } catch(e){}
-    }
-    function renderSitPlan(list){
-      sitList.innerHTML = "";
-      if (!list || list.length === 0){
-        sitList.innerHTML = "<li>No names</li>";
-        return;
-      }
-      list.forEach((name, idx) => {
-        const li = document.createElement("li");
-        li.textContent = (idx+1) + ". " + name;
-        sitList.appendChild(li);
-      });
-    }
-    function initSitPlanView(){
-      // preference: saved plan; else use sheet order
-      const saved = loadSavedPlan();
-      if (saved && saved.length) {
-        renderSitPlan(saved);
-      } else {
-        renderSitPlan(sitNames);
-      }
-      teacherActions.classList.toggle("show", teacherMode);
-    }
-
-    /* ====== HIDDEN TEACHER LOGIN (triple tap title) ====== */
-    function handleTitleTap(){
-      const now = Date.now();
-      lastTitleTapTimes = lastTitleTapTimes.filter(t => now - t < 600);
-      lastTitleTapTimes.push(now);
-      if (lastTitleTapTimes.length >= 3){
-        lastTitleTapTimes = [];
-        const input = prompt("Enter teacher password:");
-        if (input !== null){
-          if (input.toString() === sheetPassword){
-            teacherMode = true;
-            alert("Teacher mode enabled");
-            teacherActions.classList.add("show");
-          } else {
-            alert("Wrong password");
-          }
-        }
-      }
-    }
-
-    /* ====== EVENTS ====== */
-    // topbar switch
-    modeToggle.addEventListener("change", () => {
-      currentMode = modeToggle.checked ? "naughty" : "stars";
-      applyModeUI();
-      renderTable();
-      renderNotices();
+    /* ---- Study Materials ---- */
+    const materialsSheet="1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg"; 
+    const materialsDiv=document.getElementById("materialsSection");
+    fetch(`https://docs.google.com/spreadsheets/d/${materialsSheet}/gviz/tq?tqx=out:json`).then(r=>r.text()).then(txt=>{
+      const data=JSON.parse(txt.substr(47).slice(0,-2));const rows=data.table.rows;
+      let bySubject={};rows.forEach(r=>{let sub=r.c[0]?.v||"",ch=r.c[1]?.v||"",link=r.c[2]?.v||"";if(!sub||!ch||!link)return;
+        if(!bySubject[sub])bySubject[sub]=[];bySubject[sub].push({ch,link});});
+      for(const sub in bySubject){const h=document.createElement("h4");h.textContent=sub;materialsDiv.appendChild(h);
+        bySubject[sub].forEach(x=>{const a=document.createElement("a");a.textContent=x.ch;a.href=x.link;a.target="_blank";a.style.display="block";materialsDiv.appendChild(a);});}
     });
 
-    // drawer open/close
-    moreBtn.addEventListener("click", openDrawer);
-    drawerClose.addEventListener("click", closeDrawer);
-    overlay.addEventListener("click", closeDrawer);
+    /* ---- Sit Plan ---- */
+    const sitDiv=document.getElementById("sitPlanSection");
+    function showSitPlan(){sitDiv.innerHTML="";sitNames.forEach((n,i)=>{const d=document.createElement("div");d.textContent=(i+1)+". "+n;sitDiv.appendChild(d);});}
+    function shuffle(){for(let i=sitNames.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sitNames[i],sitNames[j]]=[sitNames[j],sitNames[i]];}showSitPlan();}
+    showSitPlan();
 
-    // collapsibles
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest(".group-header");
-      if (btn) toggleGroup(btn);
-    });
-
-    // title triple-tap
-    appTitle.addEventListener("click", handleTitleTap);
-
-    // shuffle (teachers only)
-    shuffleBtn.addEventListener("click", () => {
-      if (!teacherMode){ alert("Teacher mode only"); return; }
-      const source = sitNames && sitNames.length ? sitNames : [];
-      if (source.length === 0){ alert("No names found"); return; }
-      const shuffled = shuffleArray(source);
-      savePlan(shuffled);
-      renderSitPlan(shuffled);
-    });
-
-    /* ====== INIT ====== */
-    applyModeUI();
-    Promise.all([fetchMain(), fetchStudy()]).then(() => {
-      initSitPlanView();
-    });
-
-    /* ====== SERVICE WORKER HOOKS ====== */
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
-      });
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        const banner = document.getElementById("updateBanner");
-        banner.classList.add("show");
-        setTimeout(() => banner.classList.remove("show"), 4000);
-      });
-    } 
-    if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.addEventListener("message", (event) => {
-    if (event.data.action === "reload") {
-      window.location.reload();
-    }
-  });
-    }
+    /* ---- Teacher Hidden Tap ---- */
+    let taps=0,timer;
+    document.getElementById("titleTap").addEventListener("click",()=>{
+      taps++;clearTimeout(timer);timer=setTimeout(()=>taps=0,600);
+      if(taps===3){const pass=prompt("Enter password:");if(pass===teacherPassword){
+        const btn=document.createElement("button");btn.textContent="🔄 Shuffle Seats";btn.onclick=shuffle;
+        sitDiv.appendChild(btn);}}});
   </script>
-
-  <footer>Made by Piu</footer>
 </body>
-</html>
+  </html>
