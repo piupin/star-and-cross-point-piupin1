@@ -270,6 +270,29 @@
 
     /* tiny footer */
     footer{ margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7; }
+ /* === Fix: allow long names and emojis to wrap properly === */
+td.points {
+  white-space: normal;          /* enable wrapping across lines */
+  overflow-wrap: anywhere;      /* break long emoji sequences */
+  word-break: break-word;       /* fallback break */
+}
+
+th:nth-child(2), td:nth-child(2) {
+  width: auto !important;       /* let Name column expand as needed */
+}
+
+th:nth-child(3), td:nth-child(3) {
+  width: 1% !important;         /* shrink emoji column with wrap */
+}
+
+@media (max-width: 720px) {
+  th:nth-child(2), td:nth-child(2) {
+    width: 55% !important;      /* give more room to names on small screens */
+  }
+  th:nth-child(3), td:nth-child(3) {
+    width: auto !important;
+  }
+  }
   </style>
 </head>
 <body>
@@ -766,5 +789,5 @@
   <footer>Made by Piu</footer>
 </body>
 </html>
-```0
+
 
