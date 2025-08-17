@@ -27,6 +27,7 @@
     }
 
     *{box-sizing:border-box}
+    html, body { height:100%; }
     body{
       margin:0;
       background:var(--bg);
@@ -38,6 +39,12 @@
       gap:10px;
       padding:12px;
       transition:background .25s ease, color .25s ease;
+      overscroll-behavior-y: none;
+    }
+    /* lock background scroll when menu is open */
+    body.menu-open{
+      overflow:hidden;
+      touch-action:none;
     }
 
     .topbar{
@@ -59,7 +66,7 @@
       color:#ff5722;
       transition:color .25s ease;
       user-select:none;
-      cursor:pointer; /* for the hidden login triple-tap */
+      cursor:pointer; /* triple-tap login */
     }
     body.naughty h1{ color:#ff3b3b; }
 
@@ -169,15 +176,17 @@
     }
     .more-btn:active{ transform:scale(.96); }
 
-    /* Right slide drawer + overlay blur */
+    /* Overlay blur */
     .overlay{
       position:fixed; inset:0; display:none;
       backdrop-filter: blur(6px);
       background: rgba(0,0,0,.2);
       z-index: 999;
+      overscroll-behavior: contain;
     }
     .overlay.show{ display:block; }
 
+    /* Right drawer */
     .drawer{
       position:fixed;
       top:0; right:0;
@@ -189,6 +198,7 @@
       transition: transform .28s ease;
       z-index: 1000;
       display:flex; flex-direction:column;
+      will-change: transform;
     }
     .drawer.open{ transform: translateX(0%); }
 
@@ -196,6 +206,7 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:12px 14px; border-bottom:2px solid var(--border);
       background:var(--head);
+      flex: 0 0 auto;
     }
     .drawer-title{ margin:0; font-size:1.05rem; }
     .drawer-close{
@@ -203,7 +214,11 @@
     }
 
     .drawer-content{
-      padding:10px 14px; overflow:auto;
+      padding:10px 14px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      flex: 1 1 auto;
     }
 
     /* Collapsible group */
@@ -290,7 +305,7 @@
     </table>
   </div>
 
-  <!-- Notices/Reasons (kept exactly as before) -->
+  <!-- Notices/Reasons -->
   <div class="notice-wrap" id="noticeSection">
     <h2 id="noticeTitle">Notices</h2>
     <div id="noticeList">Loading…</div>
@@ -309,7 +324,6 @@
       <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
     </div>
     <div class="drawer-content">
-
       <!-- Group 1: Study Materials -->
       <div class="group" id="grpStudy">
         <button class="group-header" data-target="studyBody" aria-expanded="false">
@@ -334,7 +348,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </aside>
 
@@ -343,6 +356,7 @@
     // Main sheet (table + notices/reasons + sit plan names + password W1)
     const MAIN_SHEET_ID = "1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
     const MAIN_SHEET_NAME = "Sheet1";
+    // A,B,F,M,P,I,W  -> indices 0..6   (I is index 5, W is index 6)
     const MAIN_QUERY = encodeURIComponent("SELECT A,B,F,M,P,I,W");
     const MAIN_URL = `https://docs.google.com/spreadsheets/d/${MAIN_SHEET_ID}/gviz/tq?sheet=${MAIN_SHEET_NAME}&tq=${MAIN_QUERY}`;
 
@@ -370,9 +384,7 @@
     const moreBtn = document.getElementById("moreBtn");
     const drawerClose = document.getElementById("drawerClose");
 
-    const studyBody = document.getElementById("studyBody");
     const studyContainer = document.getElementById("studyContainer");
-    const sitBody = document.getElementById("sitBody");
     const sitList = document.getElementById("sitList");
     const teacherActions = document.getElementById("teacherActions");
     const shuffleBtn = document.getElementById("shuffleBtn");
@@ -395,11 +407,13 @@
       drawer.classList.add("open");
       drawer.setAttribute("aria-hidden","false");
       overlay.classList.add("show");
+      document.body.classList.add("menu-open");
     }
     function closeDrawer(){
       drawer.classList.remove("open");
       drawer.setAttribute("aria-hidden","true");
       overlay.classList.remove("show");
+      document.body.classList.remove("menu-open");
     }
     function toggleGroup(btn){
       const targetId = btn.getAttribute("data-target");
@@ -417,7 +431,7 @@
       return a;
     }
 
-    /* ====== TABLE RENDER (unchanged) ====== */
+    /* ====== TABLE RENDER ====== */
     function renderTable(){
       tbody.innerHTML = "";
       const rows = [];
@@ -516,7 +530,7 @@
       }
     }
 
-    /* ====== CACHE main table to localStorage (unchanged) ====== */
+    /* ====== CACHE main table ====== */
     function saveMainCache(){
       try {
         localStorage.setItem("stars_trial_cache_v2", JSON.stringify(dataRows));
@@ -531,7 +545,13 @@
       } catch(e){ return false; }
     }
 
-    /* ====== FETCH main (also get sit names + password) ====== */
+    /* ====== FETCH main (incl. sit names + password) ====== */
+    function deriveSitAndPassFromRows(rows){
+      // I column (index 5), W (index 6)
+      sitNames = rows.map(r => (r.c?.[5]?.v || "").trim()).filter(Boolean);
+      sheetPassword = (rows?.[0]?.c?.[6]?.v || "").toString();
+    }
+
     function fetchMain(){
       return fetch(MAIN_URL)
         .then(res => res.text())
@@ -540,16 +560,13 @@
           const rows = json.table.rows || [];
           dataRows = rows;
           saveMainCache();
-          // Column I (index 8? No—our SELECT A,B,F,M,P,I,W ==> indices 0..6; I is at index 5)
-          sitNames = rows.map(r => (r.c[5]?.v || "").trim()).filter(Boolean);
-          // Password from W1 (index 6, first row)
-          sheetPassword = (rows[0]?.c[6]?.v || "").toString();
+          deriveSitAndPassFromRows(rows);
           renderTable();
           renderNotices();
         })
         .catch(() => {
-          // offline fallback for table
           if (loadMainCache()){
+            deriveSitAndPassFromRows(dataRows);
             renderTable();
             renderNotices();
           } else {
@@ -559,7 +576,7 @@
         });
     }
 
-    /* ====== STUDY MATERIALS ====== */
+        /* ====== STUDY MATERIALS ====== */
     function saveStudyCache(payload){
       try { localStorage.setItem("study_cache_v1", JSON.stringify(payload)); } catch(e){}
     }
@@ -612,9 +629,9 @@
           // Build subject -> [{chapter, link}]
           const subjectMap = {};
           rows.forEach(r => {
-            const subject = (r.c[0]?.v || "").toString().trim();
-            const chapter = (r.c[1]?.v || "").toString().trim();
-            const link    = (r.c[2]?.v || "").toString().trim();
+            const subject = (r.c?.[0]?.v || "").toString().trim();
+            const chapter = (r.c?.[1]?.v || "").toString().trim();
+            const link    = (r.c?.[2]?.v || "").toString().trim();
             if (!subject || !chapter) return;
             if (!subjectMap[subject]) subjectMap[subject] = [];
             subjectMap[subject].push({ chapter, link });
@@ -654,7 +671,6 @@
       });
     }
     function initSitPlanView(){
-      // preference: saved plan; else use sheet order
       const saved = loadSavedPlan();
       if (saved && saved.length) {
         renderSitPlan(saved);
@@ -697,8 +713,13 @@
     moreBtn.addEventListener("click", openDrawer);
     drawerClose.addEventListener("click", closeDrawer);
     overlay.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeDrawer();
+    });
+    // prevent touch scrolling the background on iOS when overlay is shown
+    overlay.addEventListener("touchmove", (e) => e.preventDefault(), { passive:false });
 
-    // collapsibles
+    // collapsibles (kept collapsed by default)
     document.addEventListener("click", (e) => {
       const btn = e.target.closest(".group-header");
       if (btn) toggleGroup(btn);
@@ -733,16 +754,17 @@
         banner.classList.add("show");
         setTimeout(() => banner.classList.remove("show"), 4000);
       });
-    } 
-    if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.addEventListener("message", (event) => {
-    if (event.data.action === "reload") {
-      window.location.reload();
-    }
-  });
+      // listen for SW "reload" message
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.action === "reload") {
+          window.location.reload();
+        }
+      });
     }
   </script>
 
   <footer>Made by Piu</footer>
 </body>
 </html>
+```0
+
