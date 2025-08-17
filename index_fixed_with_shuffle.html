@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stars</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#FFD700" />
+  <style>
+    /* ✅ Keep your original design untouched */
+    :root {
+      --bg:#fff8e1;
+      --card:#ffffff;
+      --head:#ffeb3b;
+      --border:#ffcc80;
+      --text:#333;
+      --hover:#ffe082;
+      --shadow:0 4px 8px rgba(0,0,0,.2);
+    }
+    body.naughty {
+      --bg:#0a0a0a;
+      --card:#121212;
+      --head:#2a0000;
+      --border:#3a0000;
+      --text:#f8d7da;
+      --hover:#1a0000;
+      --shadow:0 6px 14px rgba(255,0,0,.15);
+    }
+
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+    }
+    .topbar{
+      width:100%;
+      max-width:720px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      padding:8px 6px;
+      backdrop-filter:saturate(140%) blur(6px);
+      z-index:10;
+    }
+    h1{ margin:0; font-size:1.6rem; color:#ff5722; }
+    footer{ margin-top:20px; font-size:0.8rem; color:#888; text-align:center; opacity:0.7; }
+
+    /* ✅ Side menu */
+    .menu-overlay {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.5);
+      backdrop-filter:blur(4px);
+      display:none;
+      z-index:20;
+    }
+    .menu-overlay.show{ display:block; }
+    .side-menu {
+      position:fixed;
+      top:0; right:-75%;
+      width:75%; height:100%;
+      background:var(--card);
+      box-shadow:-4px 0 10px rgba(0,0,0,.3);
+      padding:20px;
+      transition:right .3s ease;
+      z-index:30;
+      overflow-y:auto;
+    }
+    .side-menu.open{ right:0; }
+    .menu-section { margin:12px 0; }
+    .menu-section h3 { margin:6px 0; cursor:pointer; }
+    .menu-section ul { list-style:none; padding-left:10px; display:none; }
+    .menu-section.open ul { display:block; }
+    .menu-section ul li{ margin:4px 0; }
+    .menu-section ul li a{ color:#007bff; text-decoration:none; }
+    .menu-section ul li a:hover{ text-decoration:underline; }
+
+    /* Sit plan styles */
+    #sitPlanList { margin-top:10px; }
+    #sitPlanList div { padding:4px 0; }
+    .teacher-controls { margin-top:12px; display:none; }
+    .teacher-controls button{ margin-right:8px; padding:6px 10px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1 id="title">Student Points</h1>
+    <button onclick="openMenu()">⋮</button>
+  </div>
+
+  <!-- ✅ Side menu -->
+  <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="menu-section" id="studySection">
+      <h3 onclick="toggleSection('studySection')">📘 Study Materials</h3>
+      <ul id="studyList"><li>Loading…</li></ul>
+    </div>
+
+    <div class="menu-section" id="sitSection">
+      <h3 onclick="toggleSection('sitSection')">🪑 Sit Plan</h3>
+      <div id="sitPlanList">Loading…</div>
+      <div class="teacher-controls" id="teacherControls">
+        <button onclick="shuffleSitPlan()">Shuffle Sit Plan</button>
+        <button onclick="copySitPlan()">Copy Sit Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Made by Piu</footer>
+
+  <script>
+    // ✅ Menu open/close
+    function openMenu(){
+      document.getElementById("sideMenu").classList.add("open");
+      document.getElementById("menuOverlay").classList.add("show");
+      document.body.style.overflow="hidden";
+    }
+    function closeMenu(){
+      document.getElementById("sideMenu").classList.remove("open");
+      document.getElementById("menuOverlay").classList.remove("show");
+      document.body.style.overflow="";
+    }
+    function toggleSection(id){
+      document.getElementById(id).classList.toggle("open");
+    }
+
+    // ✅ Study Materials (from 2nd sheet)
+    const pdfSheetID = "1HFAC0O7INymniAzrQarBPK8Jfyg3lTWBzg22cxg2wVg";
+    const pdfSheetName = "Sheet1";
+    const pdfQuery = encodeURIComponent("SELECT A,B,C");
+    const pdfURL = `https://docs.google.com/spreadsheets/d/${pdfSheetID}/gviz/tq?sheet=${pdfSheetName}&tq=${pdfQuery}`;
+    fetch(pdfURL).then(res=>res.text()).then(txt=>{
+      const data = JSON.parse(txt.substr(47).slice(0,-2)).table.rows;
+      const studyList=document.getElementById("studyList");
+      studyList.innerHTML="";
+      let currentSubject=null, subjectUL=null;
+      data.forEach(row=>{
+        const subject=row.c[0]?.v||"";
+        const chapter=row.c[1]?.v||"";
+        const link=row.c[2]?.v||"";
+        if(subject && subject!==currentSubject){
+          currentSubject=subject;
+          const subjLI=document.createElement("li");
+          subjLI.innerHTML=`<strong>${subject}</strong>`;
+          subjectUL=document.createElement("ul");
+          studyList.appendChild(subjLI);
+          studyList.appendChild(subjectUL);
+        }
+        if(chapter && link && subjectUL){
+          const li=document.createElement("li");
+          li.innerHTML=`<a href="${link}" target="_blank">${chapter}</a>`;
+          subjectUL.appendChild(li);
+        }
+      });
+    });
+
+    // ✅ Sit Plan (always load from sheet)
+    const mainSheetID="1dpFvFkYwTw4B8laeTQ21mrN78w5P97W3wohI7Pa_2pk";
+    const sitURL=`https://docs.google.com/spreadsheets/d/${mainSheetID}/gviz/tq?sheet=Sheet1&tq=${encodeURIComponent("SELECT I")}`;
+    let sitNames=[], shuffledNames=[];
+    function loadSitPlan(){
+      fetch(sitURL).then(res=>res.text()).then(txt=>{
+        const data=JSON.parse(txt.substr(47).slice(0,-2)).table.rows;
+        sitNames=data.map(r=>r.c[0]?.v).filter(v=>v);
+        shuffledNames=[...sitNames];
+        renderSitPlan(sitNames);
+      });
+    }
+    function renderSitPlan(list){
+      const c=document.getElementById("sitPlanList");
+      c.innerHTML="";
+      list.forEach((n,i)=>{
+        const div=document.createElement("div");
+        div.textContent=(i+1)+". "+n;
+        c.appendChild(div);
+      });
+    }
+    function shuffleSitPlan(){
+      shuffledNames=[...sitNames].sort(()=>Math.random()-0.5);
+      renderSitPlan(shuffledNames);
+    }
+    function copySitPlan(){
+      navigator.clipboard.writeText(shuffledNames.join("\n")).then(()=>alert("Copied!"));
+    }
+    loadSitPlan();
+
+    // ✅ Teacher mode (password in W1)
+    let teacherMode=false;
+    document.getElementById("title").addEventListener("click",()=>{
+      if(window._clicks){window._clicks++}else{window._clicks=1}
+      setTimeout(()=>window._clicks=0,600);
+      if(window._clicks===3){ askPassword(); }
+    });
+    function askPassword(){
+      const pass=prompt("Enter teacher password:");
+      if(!pass) return;
+      const pwURL=`https://docs.google.com/spreadsheets/d/${mainSheetID}/gviz/tq?sheet=Sheet1&tq=${encodeURIComponent("SELECT W")}`;
+      fetch(pwURL).then(res=>res.text()).then(txt=>{
+        const data=JSON.parse(txt.substr(47).slice(0,-2)).table.rows;
+        const sheetPass=data[0]?.c[0]?.v||"";
+        if(pass===sheetPass){
+          teacherMode=true;
+          document.getElementById("teacherControls").style.display="block";
+          alert("Teacher mode enabled!");
+        } else {
+          alert("Wrong password");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
